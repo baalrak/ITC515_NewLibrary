@@ -1,8 +1,6 @@
 package library;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -43,19 +41,12 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	
 	private List<IBook> bookList;
 	private List<ILoan> loanList;
-	private Date borrowDate;
-	private Date dueDate;
-	private Calendar calendar;
 	private IMember borrower;
 
 
 	public BorrowUC_CTL(ICardReader reader, IScanner scanner, 
 			IPrinter printer, IDisplay display,
 			IBookDAO bookDAO, ILoanDAO loanDAO, IMemberDAO memberDAO ) {
-
-		this.calendar = Calendar.getInstance();
-		this.bookList = new ArrayList<IBook>();
-		this.loanList = new ArrayList<ILoan>();
 
 		this.bookDAO = bookDAO;
 		this.memberDAO= memberDAO;
@@ -176,36 +167,54 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private void setState(EBorrowState state) {
 		System.out.println("Setting state: " + state);
 		
+		this.state = state;
+		ui.setState(state);
+
 		switch (state) {
+		
 		case INITIALIZED:
 			reader.setEnabled(true);
 			scanner.setEnabled(false);
 			break;
+			
 		case SCANNING_BOOKS:
 			reader.setEnabled(false);
 			scanner.setEnabled(true);
+			this.bookList = new ArrayList<IBook>();
+			this.loanList = new ArrayList<ILoan>();
 			break;
+			
 		case CONFIRMING_LOANS:
 			reader.setEnabled(false);
 			scanner.setEnabled(false);
+			//display pending loans
+			for (ILoan loan : loanList) {
+				ui.displayConfirmingLoan(loan.toString());
+			}
 			break;
+			
 		case COMPLETED:
 			reader.setEnabled(false);
 			scanner.setEnabled(false);
+			for (ILoan loan : loanList) {
+				loanDAO.commitLoan(loan);
+				printer.print(loan.toString()+"\n\n");
+			}
 			break;
+			
 		case CANCELLED:
 			reader.setEnabled(false);
 			scanner.setEnabled(false);
 			break;
+			
 		case BORROWING_RESTRICTED:
 			reader.setEnabled(false);
 			scanner.setEnabled(false);
 			break;
+			
 		default:
 			throw new RuntimeException("Unknown state");
 		}
-		this.state = state;
-		ui.setState(state);
 	}
 
 	@Override
@@ -215,13 +224,11 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	
 	@Override
 	public void scansCompleted() {
-		setState(EBorrowState.CONFIRMING_LOANS);
-		
+		setState(EBorrowState.CONFIRMING_LOANS);		
 	}
 
 	@Override
 	public void loansConfirmed() {
-		printer.print("Loans Completed");
 		setState(EBorrowState.COMPLETED);				
 	}
 

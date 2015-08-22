@@ -20,6 +20,8 @@ public interface IBorrowUI {
 
 	public void displayPendingLoan(String loanDetails);
 	
+	public void displayConfirmingLoan(String loanDetails);
+	
 	public void displayErrorMessage(String errorMesg);
 	
 }

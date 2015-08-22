@@ -2,6 +2,7 @@ package library.hardware;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import library.interfaces.hardware.IPrinter;
@@ -22,10 +23,18 @@ public class Printer extends JFrame implements IPrinter {
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Printer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setBounds(10, 20, 400, 250);
+		panel.setBounds(10, 20, 400, 280);
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 20, 375, 280);
+		panel.add(scrollPane);
+		
+		textArea = new JTextArea();
+		textArea.setEditable(false);
+		scrollPane.setViewportView(textArea);
+
 		textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setBounds(10, 20, 375, 280);
@@ -34,6 +43,13 @@ public class Printer extends JFrame implements IPrinter {
 
 	@Override
 	public void print(String printData) {
-		textArea.setText(printData);
+		StringBuilder bld = new StringBuilder();
+		bld.append(textArea.getText());
+		if (bld.length() > 0) {
+			bld.append("\n\n");
+		}
+		bld.append(printData);
+		textArea.setText(bld.toString());
+		textArea.setCaretPosition(0);		
 	}
 }

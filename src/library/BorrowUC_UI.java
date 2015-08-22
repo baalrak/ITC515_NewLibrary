@@ -123,6 +123,13 @@ public class BorrowUC_UI extends ABorrowPanel {
 
 	
 	@Override
+	public void displayConfirmingLoan(String loanDetails) {
+		IBorrowUI ui = panels.get(state);
+		ui.displayConfirmingLoan(loanDetails);		
+	}
+
+	
+	@Override
 	public void displayErrorMessage(String errorMesg) {
 		IBorrowUI ui = panels.get(state);
 		ui.displayErrorMessage(errorMesg);		

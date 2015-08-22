@@ -26,12 +26,12 @@ public class ConfirmLoanPanel extends ABorrowPanel {
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Current Loan List", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setBounds(12, 24, 415, 200);
+		panel.setBounds(12, 24, 415, 496);
 		this.add(panel);
 		panel.setLayout(null);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 20, 395, 170);
+		scrollPane.setBounds(10, 20, 395, 463);
 		panel.add(scrollPane);
 		
 		loanListTA = new JTextArea();
@@ -45,7 +45,7 @@ public class ConfirmLoanPanel extends ABorrowPanel {
 				listener.loansRejected();
 			}
 		});
-		btnReject.setBounds(63, 237, 115, 35);
+		btnReject.setBounds(173, 533, 115, 35);
 		this.add(btnReject);
 		
 		JButton btnConfirm = new JButton("Confirm");
@@ -55,7 +55,7 @@ public class ConfirmLoanPanel extends ABorrowPanel {
 				listener.loansConfirmed();
 			}
 		});
-		btnConfirm.setBounds(275, 237, 115, 35);
+		btnConfirm.setBounds(30, 533, 115, 35);
 		this.add(btnConfirm);
 		
 		JButton button = new JButton("Cancel");
@@ -65,13 +65,13 @@ public class ConfirmLoanPanel extends ABorrowPanel {
 			}
 		});
 		button.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		button.setBounds(171, 285, 115, 35);
+		button.setBounds(312, 533, 115, 35);
 		add(button);
 	}
 
 
 	@Override
-	public void displayPendingLoan(String loanDetails) {
+	public void displayConfirmingLoan(String loanDetails) {
 		StringBuilder bld = new StringBuilder(loanListTA.getText());
 		bld.append(loanDetails + "\n\n");
 		loanListTA.setText(bld.toString());
