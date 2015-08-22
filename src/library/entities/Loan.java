@@ -10,42 +10,48 @@ import library.interfaces.entities.ELoanState;
 
 public class Loan implements ILoan {
 
-	private final int id;
+	private int id;
 	private final IMember borrower;
 	private final IBook book;
 	private Date borrowDate;
 	private Date dueDate;
 	private ELoanState state;
 	
-	public Loan(IBook book, IMember borrower, Date borrowDate, Date returnDate, int id) {
-		if ( !sane(book, borrower, borrowDate, returnDate, id)) {
+	public Loan(IBook book, IMember borrower, Date borrowDate, Date returnDate) {
+		if (!sane(book, borrower, borrowDate, returnDate)) {
 			throw new IllegalArgumentException("Loan: constructor : bad parameters");
 		}
 		this.book = book;
 		this.borrower = borrower;
 		this.borrowDate = borrowDate;
 		this.dueDate = returnDate;	
-		this.id = id;
 		this.state = ELoanState.PENDING;
 	}
 	
-	private boolean sane(IBook book, IMember borrower, Date borrowDate, Date returnDate, int loanID) {
+	private boolean sane(IBook book, IMember borrower, Date borrowDate, Date returnDate) {
 		return  ( book != null && 
 				  borrower != null && 
 				  borrowDate != null && 
 				  returnDate != null && 
-				  borrowDate.compareTo(returnDate) <= 0 &&
-				  loanID > 0);
+				  borrowDate.compareTo(returnDate) <= 0);
 	}
 
 	@Override
-	public void commit() {
+	public void commit(int loanId) {
 		if (!(state == ELoanState.PENDING)) {
 			throw new RuntimeException(
 					String.format("Loan : commit : incorrect state transition  : %s -> %s\n", 
 							state, ELoanState.CURRENT));
 		}
+		if (loanId <= 0) {
+			throw new RuntimeException(
+					String.format("Loan : commit : id must be a positive integer  : %d\n", 
+							loanId));
+		}
+		this.id = loanId;
 		state = ELoanState.CURRENT;
+		book.borrow(this);
+		borrower.addLoan(this);
 	}
 
 	@Override

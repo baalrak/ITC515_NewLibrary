@@ -12,9 +12,9 @@ public class LoanHelper implements ILoanHelper {
 
 	@Override
 	public ILoan makeLoan(IBook book, IMember borrower, Date borrowDate,
-			Date dueDate, int id) {
+			Date dueDate) {
 
-		return new Loan(book, borrower, borrowDate, dueDate, id);
+		return new Loan(book, borrower, borrowDate, dueDate);
 	}
 
 }

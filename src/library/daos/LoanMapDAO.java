@@ -1,6 +1,7 @@
 package library.daos;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class LoanMapDAO implements ILoanDAO {
 	private int nextID;
 	private Map<Integer, ILoan> loanMap;
 	private ILoanHelper helper;
+	private Calendar cal;
 	
 
 	public LoanMapDAO(ILoanHelper helper) {
@@ -25,9 +27,10 @@ public class LoanMapDAO implements ILoanDAO {
 			throw new IllegalArgumentException(
 				String.format("LoanMapDAO : constructor : helper cannot be null."));
 		}
-		nextID = 1;
+		nextID = 0;
 		this.helper = helper; 
 		loanMap = new HashMap<Integer, ILoan>();
+		cal = Calendar.getInstance();
 	}
 
 	public LoanMapDAO(ILoanHelper helper, Map<Integer,ILoan> loanMap) {
@@ -119,16 +122,25 @@ public class LoanMapDAO implements ILoanDAO {
 	}
 
 	private int getNextId() {
-		return nextID++;
+		return ++nextID;
 	}
 
+
 	@Override
-	public void addLoan(IMember borrower, IBook book, Date borrowDate, Date dueDate) {
+	public ILoan createLoan(IMember borrower, IBook book) {
+		Date borrowDate = new Date();
+		cal.setTime(borrowDate);
+		cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+		Date dueDate = cal.getTime();
+		ILoan loan = helper.makeLoan(book, borrower, borrowDate, dueDate);
+		return loan;
+	}
+
+	
+	@Override
+	public void commitLoan(ILoan loan) {
 		int id = getNextId();
-		ILoan loan = helper.makeLoan(book, borrower, borrowDate, dueDate, id);
-		borrower.addLoan(loan);
-		book.borrow(loan);
-		loan.commit();
+		loan.commit(id);		
 		loanMap.put(id, loan);		
 	}
 

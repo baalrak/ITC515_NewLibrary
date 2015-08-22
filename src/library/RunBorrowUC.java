@@ -18,6 +18,7 @@ import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.entities.IBook;
+import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 
 public class RunBorrowUC {
@@ -83,27 +84,24 @@ public class RunBorrowUC {
 		
 		//create a member with overdue loans
 		cal.setTime(now);
-		cal.add(Calendar.DATE, 1);
-		Date dueDate = cal.getTime();
-		cal.setTime(now);
-		cal.add(Calendar.DATE, 3);
+		cal.add(Calendar.DATE, ILoan.LOAN_PERIOD + 1);
 		Date checkDate = cal.getTime();		
 		
 		for (int i=0; i<2; i++) {
-			loanDAO.addLoan(member[1], book[i], borrowDate, dueDate);
+			ILoan loan = loanDAO.createLoan(member[1], book[i]);
+			loanDAO.commitLoan(loan);
 		}
 		loanDAO.updateOverDueStatus(checkDate);
-		member[1].addFine(10.0f);
 		
 		//create a member with maxed out unpaid fines
 		member[2].addFine(10.0f);
 		
 		//create a member with maxed out loans
 		for (int i=2; i<7; i++) {
-			loanDAO.addLoan(member[3], book[i], borrowDate, dueDate);
+			ILoan loan = loanDAO.createLoan(member[3], book[i]);
+			loanDAO.commitLoan(loan);
 		}
-		loanDAO.updateOverDueStatus(checkDate);
-		member[3].addFine(10.0f);
+		//member[3].addFine(5.0f);
 
         // start the GUI
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -1,27 +1,23 @@
 package library.panels;
 
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import library.interfaces.IBorrowUIListener;
-import library.interfaces.entities.ILoan;
 
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 import java.awt.Color;
 
-import library.interfaces.EBorrowState;
-import library.interfaces.IBorrowUI;
 
-public class SwipeCardPanel extends JPanel implements IBorrowUI {
+public class SwipeCardPanel extends ABorrowPanel {
 
 	private static final long serialVersionUID = 1L;
+	private JLabel lblErrMesg;
 
 	/**
 	 * Create the panel.
@@ -47,46 +43,18 @@ public class SwipeCardPanel extends JPanel implements IBorrowUI {
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnCancel.setBounds(170, 320, 127, 35);
 		add(btnCancel);
+		
+		lblErrMesg = new JLabel();
+		lblErrMesg.setForeground(Color.RED);
+		lblErrMesg.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblErrMesg.setBounds(12, 592, 434, 29);
+		this.add(lblErrMesg);
+
 	}
 
 	@Override
-	public void addListener(IBorrowUIListener listener) {
-		throw new RuntimeException("Illegal operation in current state");		
+	public void displayErrorMessage(String errorMesg) {
+		lblErrMesg.setText(errorMesg);		
 	}
-
-	@Override
-	public void setState(EBorrowState state) {
-		throw new RuntimeException("Illegal operation in current state");
-	}
-
-	@Override
-	public void listPendingLoans(List<ILoan> loans) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayMemberDetails(int memberID, String memberName, String memberPhone) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayExistingLoan(String loanDetails) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayOverDueMessage() {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayAtLoanLimitMessage() {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayOutstandingFineMessage(float amountOwing) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
+	
 }

@@ -8,6 +8,6 @@ import library.interfaces.entities.IMember;
 
 public interface ILoanHelper {
 	
-	public ILoan makeLoan(IBook book, IMember borrower, Date borrowDate, Date dueDate, int id);
+	public ILoan makeLoan(IBook book, IMember borrower, Date borrowDate, Date dueDate);
 
 }

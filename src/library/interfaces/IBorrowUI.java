@@ -1,12 +1,7 @@
 package library.interfaces;
 
-import java.util.List;
-import library.interfaces.entities.ILoan;
-
 public interface IBorrowUI {
 
-	public void addListener(IBorrowUIListener listener);
-	
 	public void setState(EBorrowState state);
 	
 	public void displayMemberDetails(int memberID, String memberName, String memberPhone);
@@ -19,6 +14,12 @@ public interface IBorrowUI {
 	
 	public void displayOutstandingFineMessage(float amountOwing);
 
-	public void listPendingLoans(List<ILoan> loans);
+	public void displayOverFineLimitMessage(float amountOwing);
+
+	public void displayScannedBookDetails(String bookDetails);
+
+	public void displayPendingLoan(String loanDetails);
+	
+	public void displayErrorMessage(String errorMesg);
 	
 }

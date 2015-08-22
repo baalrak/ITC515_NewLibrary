@@ -1,5 +1,10 @@
 package library;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import library.interfaces.EBorrowState;
@@ -8,6 +13,8 @@ import library.interfaces.IBorrowUIListener;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
+import library.interfaces.entities.EBookState;
+import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 import library.interfaces.hardware.ICardReader;
@@ -33,10 +40,22 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private IBookDAO bookDAO;
 	private IMemberDAO memberDAO;
 	private ILoanDAO loanDAO;
+	
+	private List<IBook> bookList;
+	private List<ILoan> loanList;
+	private Date borrowDate;
+	private Date dueDate;
+	private Calendar calendar;
+	private IMember borrower;
+
 
 	public BorrowUC_CTL(ICardReader reader, IScanner scanner, 
 			IPrinter printer, IDisplay display,
 			IBookDAO bookDAO, ILoanDAO loanDAO, IMemberDAO memberDAO ) {
+
+		this.calendar = Calendar.getInstance();
+		this.bookList = new ArrayList<IBook>();
+		this.loanList = new ArrayList<ILoan>();
 
 		this.bookDAO = bookDAO;
 		this.memberDAO= memberDAO;
@@ -55,61 +74,103 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	}
 
 	@Override
-	public void receiveCardData(int memberID) {
-		System.out.println("receiveCardData: got " + memberID);
+	public void cardSwiped(int memberID) {
+		System.out.println("cardSwiped: got " + memberID);
 		if (!state.equals(EBorrowState.INITIALIZED)) {
-			throw new RuntimeException("BorrowCTL.receiveCardData: illegal state : " + state.toString());
+			throw new RuntimeException(
+					String.format("BorrowUC_CTL : cardSwiped : illegal operation in state: %s", state));
 		}
-		IMember member = memberDAO.getMemberByID(memberID);
-		if (member == null) {
-			throw new RuntimeException(String.format("BorrowCTL : cardScanned : memberID not found"));
+		borrower = memberDAO.getMemberByID(memberID);
+		if (borrower == null) {
+			ui.displayErrorMessage(String.format("Member ID %d not found", memberID));
+			return;
 		}
-		boolean overdue = member.hasOverDueLoans();
-		boolean atLoanLimit = member.hasReachedLoanLimit();
-		boolean overFineLimit = member.hasReachedFineLimit();
+		boolean overdue = borrower.hasOverDueLoans();
+		boolean atLoanLimit = borrower.hasReachedLoanLimit();
+		boolean hasFines = borrower.hasFinesPayable();
+		boolean overFineLimit = borrower.hasReachedFineLimit();
 		boolean borrowing_restricted = (overdue || atLoanLimit || overFineLimit);
 		
 		if (borrowing_restricted) {
 			setState(EBorrowState.BORROWING_RESTRICTED);
-			if (overdue) {
-				ui.displayOverDueMessage();
-			}
-			if (atLoanLimit) {
-				ui.displayAtLoanLimitMessage();
-			}
-			if (overFineLimit) {
-				float amountOwing = member.getFineAmount();
-				ui.displayOutstandingFineMessage(amountOwing);
-			}
 		}
 		else {
 			setState(EBorrowState.SCANNING_BOOKS);
-			//initialize scanCount with number of existing loans
-			//so that member doesn't borrow more than they should
-			scanCount = member.getLoans().size();
 		}
 
 		//display member details
-		int mID = member.getID();
-		String mName = member.getFirstName() + " " + member.getLastName();
-		String mContact = member.getContactPhone();
+		int mID = borrower.getID();
+		String mName = borrower.getFirstName() + " " + borrower.getLastName();
+		String mContact = borrower.getContactPhone();
 		ui.displayMemberDetails(mID, mName, mContact);	
 		
+		if (overdue) {
+			ui.displayOverDueMessage();
+		}
+		if (atLoanLimit) {
+			ui.displayAtLoanLimitMessage();
+		}
+		if (hasFines) {
+			float amountOwing = borrower.getFineAmount();
+			ui.displayOutstandingFineMessage(amountOwing);
+		}
+		
+		if (overFineLimit) {
+			float amountOwing = borrower.getFineAmount();
+			ui.displayOverFineLimitMessage(amountOwing);
+		}
+		
 		//display existing loans
-		for (ILoan ln : member.getLoans()) {
+		for (ILoan ln : borrower.getLoans()) {
 			ui.displayExistingLoan(ln.toString());
 		}
 		
+		//initialize scanCount with number of existing loans
+		//so that member doesn't borrow more than they should
+		scanCount = borrower.getLoans().size();
 	}
 	
 	
 	@Override
-	public void receiveScan(int barcode) {
+	public void bookScanned(int barcode) {
+		System.out.println("bookScanned: got " + barcode);
+		if (state != EBorrowState.SCANNING_BOOKS) {
+			throw new RuntimeException(
+					String.format("BorrowUC_CTL : bookScanned : illegal operation in state: %s", state));			
+		}
+		ui.displayErrorMessage("");
+		IBook book = bookDAO.getBookByID(barcode);
+		if (book == null) {
+			ui.displayErrorMessage(String.format("Book %d not found", barcode));
+			return;
+		}
+
+		if (book.getState() != EBookState.AVAILABLE) {
+			ui.displayErrorMessage(String.format("Book %d is not available: %s", book.getID(), book.getState()));
+			return;
+		}
+		if (bookList.contains(book)) {
+			ui.displayErrorMessage(String.format("Book %d already scanned: ", book.getID()));
+			return;
+		}
+
 		scanCount++;
-		System.out.println("receiveScan: got " + barcode + " Scan count = " + scanCount);
+		bookList.add(book);
+		ILoan loan = loanDAO.createLoan(borrower, book);
+		loanList.add(loan);
+		
+		//display current book
+		ui.displayScannedBookDetails(book.toString());
+		//display pending loans
+		ui.displayPendingLoan(loan.toString());
+
+		
 		if (scanCount >= MAX_COUNT) {
 			setState(EBorrowState.CONFIRMING_LOANS);
 		}
+		
+		
+		
 	}
 
 	private void setState(EBorrowState state) {

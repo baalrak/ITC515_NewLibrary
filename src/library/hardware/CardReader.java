@@ -70,12 +70,13 @@ public class CardReader extends JFrame implements ICardReader {
 					if (memberId <= 0) {
 						throw new NumberFormatException();
 					}
-					listener.receiveCardData(memberId);
+					listener.cardSwiped(memberId);
 				}
 				catch (NumberFormatException e) {
 					//e.printStackTrace(System.err);
 					lblErrorMesg.setText("Member Id must be a positive intger");
 				}
+				textField.setText("");
 			}
 		});
 		btnReadCard.setFont(new Font("Tahoma", Font.PLAIN, 14));

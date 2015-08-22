@@ -7,16 +7,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
-import library.entities.Loan;
-import library.interfaces.EBorrowState;
-import library.interfaces.IBorrowUI;
 import library.interfaces.IBorrowUIListener;
-import library.interfaces.entities.ILoan;
 import java.awt.Font;
 
-public class ConfirmLoanPanel extends JPanel implements IBorrowUI {
+public class ConfirmLoanPanel extends ABorrowPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JTextArea loanListTA;
@@ -28,7 +23,6 @@ public class ConfirmLoanPanel extends JPanel implements IBorrowUI {
 		setLayout(null);
 		setBorder(new TitledBorder(null, "Confirm Loans", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setBounds(12, 23, 460, 640);
-		//setBounds(12, 23, 614, 451);
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Current Loan List", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -73,82 +67,15 @@ public class ConfirmLoanPanel extends JPanel implements IBorrowUI {
 		button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		button.setBounds(171, 285, 115, 35);
 		add(button);
-/*
-		JLabel lblConfirmLoans = new JLabel("Confirm Loans Please");
-		lblConfirmLoans.setHorizontalAlignment(SwingConstants.CENTER);
-		lblConfirmLoans.setFont(new Font("Tahoma", Font.PLAIN, 42));
-		lblConfirmLoans.setBounds(74, 181, 436, 78);
-		add(lblConfirmLoans);
-		
-		JButton btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				listener.cancelled();
-			}
-		});
-		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnCancel.setBounds(350, 320, 127, 35);
-		add(btnCancel);
-		
-		JButton btnConfirm = new JButton("Confirm");
-		btnConfirm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				listener.loansConfirmed();
-			}
-		});
-		btnConfirm.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnConfirm.setBounds(127, 320, 127, 35);
-		add(btnConfirm);
-*/
 	}
 
 
-
 	@Override
-	public void addListener(IBorrowUIListener listener) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void setState(EBorrowState state) {		
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-
-
-	@Override
-	public void listPendingLoans(List<ILoan> loans) {
-		StringBuilder bld = new StringBuilder();
-		for (ILoan loan : loans) {
-			bld.append(((Loan) loan).toString() + "\n\n");
-		}
+	public void displayPendingLoan(String loanDetails) {
+		StringBuilder bld = new StringBuilder(loanListTA.getText());
+		bld.append(loanDetails + "\n\n");
 		loanListTA.setText(bld.toString());
 		loanListTA.setCaretPosition(0);
-	}
-
-	@Override
-	public void displayMemberDetails(int memberID, String memberName, String memberPhone) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayExistingLoan(String loanDetails) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayOverDueMessage() {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayAtLoanLimitMessage() {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void displayOutstandingFineMessage(float amountOwing) {
-		throw new RuntimeException("Illegal operation in current state");		
 	}
 
 

@@ -69,13 +69,16 @@ public class Scanner extends JFrame implements IScanner {
 				String text = textField.getText();
 				try {
 					int barcode = new Integer(text).intValue();
-					listener.receiveScan(barcode);
-					textField.setText("");
+					if (barcode <= 0) {
+						throw new NumberFormatException();
+					}
+					listener.bookScanned(barcode);
 				}
 				catch (NumberFormatException e) {
 					//e.printStackTrace(System.err);
 					lblErrorMesg.setText("Book barcode must be a positive intger");
 				}
+				textField.setText("");
 			}
 		});
 		btnScan.setFont(new Font("Tahoma", Font.PLAIN, 14));

@@ -6,10 +6,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
-import library.interfaces.EBorrowState;
-import library.interfaces.IBorrowUI;
 import library.interfaces.IBorrowUIListener;
-import library.interfaces.entities.ILoan;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,9 +15,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
-public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
+public class RestrictedPanel extends ABorrowPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JLabel lblBorrowerName;
@@ -31,11 +27,12 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 	private JButton btnCompleted;
 	private JButton btnCancel;
 	private JTextArea existingLoanListTA;
+	private JLabel lblErrMesg;
 
 	/**
 	 * Create the panel.
 	 */
-	public BorrowingRestrictedPanel(IBorrowUIListener listener) {
+	public RestrictedPanel(IBorrowUIListener listener) {
 		setLayout(null);
 		setBorder(new TitledBorder(null, "Scanning", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setBounds(12, 23, 460, 640);
@@ -74,17 +71,7 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 		currentBookTA.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		currentBookTA.setEditable(false);
 		currentBookSCL.setViewportView(currentBookTA);
-		/*
-		btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				listener.cancelled();
-				//onCancel();
-			}
-		});
-		btnCancel.setBounds(500, 318, 89, 23);
-		this.add(btnCancel);
-		*/
+
 		JPanel panel_3 = new JPanel();
 		panel_3.setLayout(null);
 		panel_3.setBorder(new TitledBorder(null, "Borrower Details", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -150,12 +137,6 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 		lblLoanLimit.setBounds(10, 46, 354, 14);
 		panel_7.add(lblLoanLimit);
 		
-		JLabel lblErrMesg = new JLabel("Error Messages");
-		lblErrMesg.setForeground(Color.RED);
-		lblErrMesg.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblErrMesg.setBounds(12, 592, 434, 29);
-		this.add(lblErrMesg);
-		
 		btnCompleted = new JButton("Completed");
 		btnCompleted.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -176,21 +157,13 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnCancel.setBounds(271, 544, 127, 35);
 		add(btnCancel);
-	}
-
-	@Override
-	public void addListener(IBorrowUIListener listener) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void setState(EBorrowState state) {
-		throw new RuntimeException("Illegal operation in current state");		
-	}
-
-	@Override
-	public void listPendingLoans(List<ILoan> loans) {
-		throw new RuntimeException("Illegal operation in current state");		
+		
+		JLabel lblErrMesg = new JLabel("Member cannot borrow at this time.");
+		lblErrMesg.setForeground(Color.RED);
+		lblErrMesg.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblErrMesg.setBounds(12, 592, 434, 29);
+		this.add(lblErrMesg);
+		
 	}
 
 	@Override
@@ -200,6 +173,28 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 	}
 
 	@Override
+	public void displayOverDueMessage() {
+		lblOverdue.setText("Borrower has overdue loans");
+	}
+
+	
+	@Override
+	public void displayAtLoanLimitMessage() {
+		lblLoanLimit.setText("Borrower has reached maximum number of borrowed items");
+	}
+
+	
+	@Override
+	public void displayOutstandingFineMessage(float amountOwing) {
+		lblFineLimit.setText(String.format("Borrower has outstanding fines. Amount owing: $%.2f", amountOwing ));
+	}
+
+	@Override
+	public void displayOverFineLimitMessage(float amountOwing) {
+		lblFineLimit.setText(String.format("Borrower has reached fine limit. Amount owing: $%.2f", amountOwing ));
+	}
+	
+	@Override
 	public void displayExistingLoan(String loanDetails) {
 		StringBuilder bld = new StringBuilder(existingLoanListTA.getText());
 		bld.append(loanDetails).append("\n\n");
@@ -207,19 +202,5 @@ public class BorrowingRestrictedPanel extends JPanel implements IBorrowUI {
 		existingLoanListTA.setCaretPosition(0);		
 	}
 
-	@Override
-	public void displayOverDueMessage() {
-		lblOverdue.setText("Borrower has overdue loans");
-	}
-
-	@Override
-	public void displayAtLoanLimitMessage() {
-		lblLoanLimit.setText("Borrower has reached maximum number of borrowed items");
-	}
-
-	@Override
-	public void displayOutstandingFineMessage(float amountOwing) {
-		lblFineLimit.setText(String.format("Borrower has reached fine limit. Amount owing: $%.2f", amountOwing ));
-	}
 
 }
