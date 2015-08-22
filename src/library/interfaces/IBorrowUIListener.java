@@ -1,4 +1,4 @@
-package library;
+package library.interfaces;
 
 public interface IBorrowUIListener {
 	
@@ -7,5 +7,7 @@ public interface IBorrowUIListener {
 	public void scansCompleted();
 	
 	public void loansConfirmed();
+	
+	public void loansRejected();
 
 }

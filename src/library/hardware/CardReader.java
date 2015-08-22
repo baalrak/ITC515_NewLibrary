@@ -1,4 +1,4 @@
-package library;
+package library.hardware;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -6,6 +6,10 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+
+import library.interfaces.hardware.ICardReader;
+import library.interfaces.hardware.ICardReaderListener;
+
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -54,7 +58,7 @@ public class CardReader extends JFrame implements ICardReader {
 		textField.setColumns(10);
 		textField.setEditable(false);
 		
-		btnReadCard = new JButton("Read Card");
+		btnReadCard = new JButton("Swipe Card");
 		btnReadCard.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (listener == null) {

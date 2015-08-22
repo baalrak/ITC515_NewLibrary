@@ -1,8 +1,12 @@
-package library;
+package library.hardware;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+
+import library.interfaces.hardware.IScanner;
+import library.interfaces.hardware.IScannerListener;
+
 import javax.swing.JLabel;
 
 import java.awt.Color;

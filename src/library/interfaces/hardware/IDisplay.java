@@ -1,4 +1,4 @@
-package library;
+package library.interfaces.hardware;
 
 import javax.swing.JPanel;
 

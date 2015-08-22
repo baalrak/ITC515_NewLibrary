@@ -1,8 +1,11 @@
-package library;
+package library.hardware;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+
+import library.interfaces.hardware.IPrinter;
+
 import javax.swing.JTextArea;
 
 public class Printer extends JFrame implements IPrinter {
