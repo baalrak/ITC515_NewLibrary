@@ -61,6 +61,7 @@ public class Scanner extends JFrame implements IScanner {
 		textField.setEditable(false);
 		
 		btnScan = new JButton("Scan Book Barcode");
+		btnScan.setEnabled(false);
 		btnScan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (listener == null) {

@@ -1,4 +1,4 @@
-package library.panels;
+package library.panels.borrow;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -18,6 +18,7 @@ import library.interfaces.IBorrowUIListener;
 public class ScanningPanel extends ABorrowPanel {
 
 	private static final long serialVersionUID = 1L;
+	private JLabel lblBorrowerId;
 	private JLabel lblBorrowerName;
 	private JLabel lblBorrowerContact;
 	private JLabel lblOverdue;
@@ -80,23 +81,33 @@ public class ScanningPanel extends ABorrowPanel {
 		panel_3.setBounds(10, 25, 434, 252);
 		this.add(panel_3);
 		
+		JLabel lbl_11 = new JLabel("Id: ");
+		lbl_11.setBounds(12, 20, 20, 14);
+		panel_3.add(lbl_11);
+		
+		lblBorrowerId = new JLabel("123");
+		lblBorrowerId.setForeground(Color.BLUE);
+		lblBorrowerId.setBackground(Color.LIGHT_GRAY);
+		lblBorrowerId.setBounds(32, 20, 46, 14);
+		panel_3.add(lblBorrowerId);
+		
 		JLabel label = new JLabel("Name: ");
-		label.setBounds(10, 21, 46, 14);
+		label.setBounds(81, 20, 46, 14);
 		panel_3.add(label);
 		
 		lblBorrowerName = new JLabel("Fred Nurke");
 		lblBorrowerName.setForeground(Color.BLUE);
 		lblBorrowerName.setBackground(Color.LIGHT_GRAY);
-		lblBorrowerName.setBounds(54, 21, 153, 14);
+		lblBorrowerName.setBounds(126, 21, 156, 14);
 		panel_3.add(lblBorrowerName);
 		
 		JLabel label_2 = new JLabel("Contact:");
-		label_2.setBounds(217, 21, 56, 14);
+		label_2.setBounds(282, 21, 56, 14);
 		panel_3.add(label_2);
 		
 		lblBorrowerContact = new JLabel("02 63384931");
 		lblBorrowerContact.setForeground(Color.BLUE);
-		lblBorrowerContact.setBounds(268, 21, 146, 14);
+		lblBorrowerContact.setBounds(338, 21, 86, 14);
 		panel_3.add(lblBorrowerContact);
 		
 		JPanel panel_6 = new JPanel();
@@ -170,7 +181,8 @@ public class ScanningPanel extends ABorrowPanel {
 
 	@Override
 	public void displayMemberDetails(int memberID, String memberName, String memberPhone) {
-		lblBorrowerName.setText(memberID + " " + memberName);
+		lblBorrowerId.setText(Integer.valueOf(memberID).toString());
+		lblBorrowerName.setText(memberName);
 		lblBorrowerContact.setText(memberPhone);
 	}
 
@@ -189,13 +201,13 @@ public class ScanningPanel extends ABorrowPanel {
 
 	@Override
 	public void displayScannedBookDetails(String bookDetails) {
-		insertStringInTA(bookDetails, currentBookTA, false);
+		currentBookTA.setText(bookDetails);
 	}
 
 
 	@Override
 	public void displayPendingLoan(String loanDetails) {
-		insertStringInTA(loanDetails, pendingLoanListTA, true);
+		pendingLoanListTA.setText(loanDetails);
 	}
 
 	private void insertStringInTA(String string, JTextArea ta, boolean append) {
@@ -215,6 +227,6 @@ public class ScanningPanel extends ABorrowPanel {
 	public void displayErrorMessage(String errorMesg) {
 		lblErrMesg.setText(errorMesg);		
 	}
-	
+
 
 }

@@ -1,4 +1,4 @@
-package library.panels;
+package library.panels.borrow;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import library.interfaces.IBorrowUIListener;
+
 import java.awt.Font;
 
 public class ConfirmLoanPanel extends ABorrowPanel {
@@ -72,9 +73,7 @@ public class ConfirmLoanPanel extends ABorrowPanel {
 
 	@Override
 	public void displayConfirmingLoan(String loanDetails) {
-		StringBuilder bld = new StringBuilder(loanListTA.getText());
-		bld.append(loanDetails + "\n\n");
-		loanListTA.setText(bld.toString());
+		loanListTA.setText(loanDetails);
 		loanListTA.setCaretPosition(0);
 	}
 

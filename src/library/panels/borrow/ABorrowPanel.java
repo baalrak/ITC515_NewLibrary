@@ -1,4 +1,4 @@
-package library.panels;
+package library.panels.borrow;
 
 import javax.swing.JPanel;
 

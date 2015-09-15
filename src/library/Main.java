@@ -8,51 +8,57 @@ import library.hardware.Scanner;
 import java.util.Calendar;
 import java.util.Date;
 
-import library.daos.BookHelper;
-import library.daos.BookMapDAO;
-import library.daos.LoanHelper;
-import library.daos.LoanMapDAO;
-import library.daos.MemberHelper;
-import library.daos.MemberMapDAO;
+import library.interfaces.IMainListener;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
+import library.panels.MainPanel;
 
-public class RunBorrowUC {
+public class Main implements IMainListener {
 
-	private static CardReader reader;
-	private static Scanner scanner;
-	private static Printer printer;
-	private static Display display;
-	private static IBookDAO bookDAO;
-	private static ILoanDAO loanDAO;
-	private static IMemberDAO memberDAO;
-	//private static BorrowUC_CTL control;
+	private CardReader reader;
+	private Scanner scanner;
+	private Printer printer;
+	private Display display;
+	private IBookDAO bookDAO;
+	private ILoanDAO loanDAO;
+	private IMemberDAO memberDAO;
+	
+	public Main() {
+		reader = new CardReader();
+		scanner = new Scanner();
+		printer = new Printer();
+		display = new Display();
+		
+		//setupTestData();
+	}
 
-	public static void showGUI() {		
+
+	public void showGUI() {		
 		reader.setVisible(true);
 		scanner.setVisible(true);
 		printer.setVisible(true);
 		display.setVisible(true);
 	}
 
-	public static void main(String[] args) {
-		
-		bookDAO = new BookMapDAO(new BookHelper());
-		loanDAO = new LoanMapDAO(new LoanHelper());
-		memberDAO = new MemberMapDAO(new MemberHelper());
+	
+	@Override
+	public void borrowBooks() {
+		BorrowUC_CTL ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
+				 null, null, null);
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	ctl.initialise();
+            }
+        });		
+	}
 
-		reader = new CardReader();
-		scanner = new Scanner();
-		printer = new Printer();
-		display = new Display();
-		new BorrowUC_CTL(reader, scanner, printer, display, 
-						 bookDAO, loanDAO, memberDAO);
-		
-		IBook[] book = new IBook[15];
+	
+	private void setupTestData() {
+        IBook[] book = new IBook[15];
 		IMember[] member = new IMember[6];
 		
 		book[0]  = bookDAO.addBook("author1", "title1", "callNo1");
@@ -108,13 +114,20 @@ public class RunBorrowUC {
 			ILoan loan = loanDAO.createLoan(member[5], book[i]);
 			loanDAO.commitLoan(loan);
 		}
+	}
 
+	
+	public static void main(String[] args) {
+		
         // start the GUI
+		Main main = new Main();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                showGUI();
+            	main.display.setDisplay(new MainPanel(main), "Main Menu");
+                main.showGUI();
             }
         });
 	}
 
+	
 }

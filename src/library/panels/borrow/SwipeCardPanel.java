@@ -1,4 +1,4 @@
-package library.panels;
+package library.panels.borrow;
 
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
@@ -56,5 +56,6 @@ public class SwipeCardPanel extends ABorrowPanel {
 	public void displayErrorMessage(String errorMesg) {
 		lblErrMesg.setText(errorMesg);		
 	}
+
 	
 }
