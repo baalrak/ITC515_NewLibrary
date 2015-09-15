@@ -8,6 +8,15 @@ import library.interfaces.entities.IMember;
 
 public class Member implements IMember
 {
+  
+  private int iD;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private String contactNumber;
+  private EMemberState state;
+  private List<ILoan> loan;
+  private float fineAmount;
 
   @Override
   public boolean hasOverDueLoans ()
@@ -48,8 +57,7 @@ public class Member implements IMember
   @Override
   public float getFineAmount ()
   {
-    // TODO Auto-generated method stub
-    return 0;
+    return fineAmount;
   }
 
 
@@ -84,8 +92,7 @@ public class Member implements IMember
   @Override
   public List<ILoan> getLoans ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return loan;
   }
 
 
@@ -102,8 +109,7 @@ public class Member implements IMember
   @Override
   public EMemberState getState ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return state;
   }
 
 
@@ -111,8 +117,7 @@ public class Member implements IMember
   @Override
   public String getFirstName ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return firstName;
   }
 
 
@@ -120,8 +125,7 @@ public class Member implements IMember
   @Override
   public String getLastName ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return lastName;
   }
 
 
@@ -129,8 +133,7 @@ public class Member implements IMember
   @Override
   public String getContactPhone ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return contactNumber;
   }
 
 
@@ -138,8 +141,7 @@ public class Member implements IMember
   @Override
   public String getEmailAddress ()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return email;
   }
 
 
@@ -147,8 +149,7 @@ public class Member implements IMember
   @Override
   public int getID ()
   {
-    // TODO Auto-generated method stub
-    return 0;
+    return iD;
   }
 
 }
