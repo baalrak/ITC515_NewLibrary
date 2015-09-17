@@ -18,6 +18,53 @@ public class Member implements IMember
   private List<ILoan> loan;
   private float fineAmount;
 
+  
+  public Member(int iD, String firstName, String lastName, String email, 
+                String contactNumber)
+  {
+    if (sane(iD, firstName, lastName, email, contactNumber)) 
+    {
+      this.iD            = iD;
+      this.firstName     = firstName;
+      this.lastName      = lastName;
+      this.email         = email;
+      this.contactNumber = contactNumber;
+    }
+  }
+  
+  
+  
+  private boolean sane(int iD, String firstName, String lastName, String email, 
+      String contactNumber)
+  {
+    if (firstName == null || firstName.isEmpty())
+    {
+      throw new RuntimeException ("Member must have valid first name");
+    }
+    else if  (lastName == null || lastName.isEmpty())
+    {
+      throw new RuntimeException ("Member must have valid last name");
+    }
+    else if (email == null || email.isEmpty())
+    {
+      throw new RuntimeException ("Member must have valid email address");
+    }
+    else if (contactNumber == null || contactNumber.isEmpty())
+    {
+      throw new RuntimeException ("Member must have valid contact number");
+    }
+    else if (iD <= 0)
+    {
+      throw new RuntimeException ("Member must have valid ID") ;
+    }
+    else 
+    {
+      return true;
+    }
+  }
+  
+  
+  
   @Override
   public boolean hasOverDueLoans ()
   {
