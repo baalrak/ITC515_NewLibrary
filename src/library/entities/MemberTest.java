@@ -2,6 +2,7 @@ package library.entities;
 
 import static org.junit.Assert.*;
 import library.entities.Member;
+import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.IMember;
 
 import java.lang.*;
@@ -97,11 +98,11 @@ public class MemberTest
   }
 
 
-
+  
   @Test
   public void testGetFineAmount ()
   {
-    fail ("Not yet implemented");
+  assertEquals(0.0f, member.getFineAmount(), 0.001f);
   }
 
 
@@ -109,7 +110,12 @@ public class MemberTest
   @Test
   public void testAddFine ()
   {
-    fail ("Not yet implemented");
+    member.addFine(5.0f);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addFine(10.0f);
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    thrown.expect(RuntimeException.class);
+    member.addFine (0.00f);
   }
 
 
@@ -117,7 +123,14 @@ public class MemberTest
   @Test
   public void testPayFine ()
   {
-    fail ("Not yet implemented");
+    member.addFine(10.0f);
+    member.payFine(5.0f);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addFine(11.0f);
+    member.payFine(1.0f);
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    thrown.expect(RuntimeException.class);
+    member.addFine (0.00f);
   }
 
 
@@ -149,7 +162,7 @@ public class MemberTest
   @Test
   public void testGetState ()
   {
-    fail ("Not yet implemented");
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
   }
 
 

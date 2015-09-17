@@ -160,8 +160,22 @@ public class Member implements IMember
   @Override
   public void addFine (float fine)
   {
-    // TODO Auto-generated method stub
-
+    if (fine <= 0.0f)
+    {
+      throw new RuntimeException ("Fine amount must not be less than $0.00");
+    }
+    else
+    {
+    fineAmount += fine;
+    if (fineAmount > MAX_FINES)
+    {
+      state = EMemberState.BORROWING_DISALLOWED;
+    }
+    else
+    {
+      state = EMemberState.BORROWING_ALLOWED;
+    }
+    }
   }
 
 
@@ -169,8 +183,23 @@ public class Member implements IMember
   @Override
   public void payFine (float payment)
   {
-    // TODO Auto-generated method stub
-
+    if (payment <= 0.0f || payment > fineAmount)
+    {
+      throw new RuntimeException ("Payment amount must be greater than $0.00 and"
+                                  + " less than" + MAX_FINES);
+    }
+    else
+    {
+    fineAmount -= payment;
+    if (fineAmount <= MAX_FINES)
+    {
+      state = EMemberState.BORROWING_ALLOWED;
+    }
+    else
+    {
+      state = EMemberState.BORROWING_DISALLOWED;
+    }
+    }
   }
 
 
