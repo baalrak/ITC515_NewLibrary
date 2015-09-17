@@ -21,6 +21,8 @@ public class Member implements IMember
   private List<ILoan> loan;
   private float fineAmount;
   private Date currentDate = new Date();
+  private final int MAX_LOANS = 5;
+  private final float MAX_FINES = 10.0f;
 
   
   public Member(int iD, String firstName, String lastName, String email, 
@@ -105,8 +107,14 @@ public class Member implements IMember
   @Override
   public boolean hasReachedLoanLimit ()
   {
-    // TODO Auto-generated method stub
-    return false;
+    if (loan.size() > MAX_LOANS)
+      {
+      return true;
+      }
+    else
+    {
+      return false;
+    }
   }
 
 
@@ -114,8 +122,14 @@ public class Member implements IMember
   @Override
   public boolean hasFinesPayable ()
   {
-    // TODO Auto-generated method stub
-    return false;
+    if (fineAmount > 0)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
 
@@ -123,8 +137,14 @@ public class Member implements IMember
   @Override
   public boolean hasReachedFineLimit ()
   {
-    // TODO Auto-generated method stub
-    return false;
+    if (hasFinesPayable() && fineAmount > MAX_FINES)
+    {
+      return true;
+    }
+    else 
+    {
+      return false;  
+    }
   }
 
 

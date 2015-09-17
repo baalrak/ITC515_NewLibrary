@@ -77,7 +77,7 @@ public class MemberTest
   @Test
   public void testHasReachedLoanLimit ()
   {
-    fail ("Not yet implemented");
+    assertFalse (member.hasReachedLoanLimit());
   }
 
 
@@ -85,7 +85,7 @@ public class MemberTest
   @Test
   public void testHasFinesPayable ()
   {
-    fail ("Not yet implemented");
+    assertFalse (member.hasFinesPayable());
   }
 
 
@@ -93,7 +93,7 @@ public class MemberTest
   @Test
   public void testHasReachedFineLimit ()
   {
-    fail ("Not yet implemented");
+    assertFalse (member.hasReachedFineLimit());
   }
 
 
