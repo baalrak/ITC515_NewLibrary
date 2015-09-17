@@ -1,6 +1,7 @@
 package library.entities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -207,7 +208,26 @@ public class Member implements IMember
   @Override
   public void addLoan (ILoan loan)
   {
-    // TODO Auto-generated method stub
+    if (state == EMemberState.BORROWING_ALLOWED)
+    { 
+      if (this.loan.size() < MAX_LOANS)
+      {
+        this.loan.add(loan);
+      }
+      else
+      {
+        state = EMemberState.BORROWING_DISALLOWED;
+        throw new RuntimeException("Member " + firstName + "" + lastName + " has"
+                                   + " the maximum amount of loans!");
+      }
+    }
+    else
+    {
+    throw new RuntimeException("Member " + firstName + "" + lastName + " "
+                               + "cannot borrow any more books at this "
+                               + "time!");
+    }
+    
 
   }
 

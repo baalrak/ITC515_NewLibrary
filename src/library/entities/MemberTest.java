@@ -1,11 +1,14 @@
 package library.entities;
 
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import library.entities.Member;
 import library.interfaces.entities.EMemberState;
+import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
-
-import java.lang.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +20,7 @@ public class MemberTest
 {
   
   IMember member;
+  List<ILoan> loan;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
@@ -138,7 +142,19 @@ public class MemberTest
   @Test
   public void testAddLoan ()
   {
-    fail ("Not yet implemented");
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    thrown.expect(RuntimeException.class);
+    member.addLoan ((ILoan) loan);
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState()); 
   }
 
 
@@ -146,7 +162,8 @@ public class MemberTest
   @Test
   public void testGetLoans ()
   {
-    fail ("Not yet implemented");
+    member.addLoan((ILoan)loan);
+    assertEquals(member.getLoans().get(0), (ILoan)loan);
   }
 
 
@@ -206,99 +223,5 @@ public class MemberTest
   }
 
 
-
-  @Test
-  public void testObject ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testGetClass ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testHashCode ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testEquals ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testClone ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testToString ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testNotify ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testNotifyAll ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testWaitLong ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testWaitLongInt ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testWait ()
-  {
-    fail ("Not yet implemented");
-  }
-
-
-
-  @Test
-  public void testFinalize ()
-  {
-    fail ("Not yet implemented");
-  }
 
 }
