@@ -1,5 +1,6 @@
 package library.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import library.interfaces.entities.EMemberState;
@@ -29,6 +30,9 @@ public class Member implements IMember
       this.lastName      = lastName;
       this.email         = email;
       this.contactNumber = contactNumber;
+      state = EMemberState.BORROWING_ALLOWED;
+      loan = new ArrayList();
+      fineAmount = 0.0f;
     }
   }
   

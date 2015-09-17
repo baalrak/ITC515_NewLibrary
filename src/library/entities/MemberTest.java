@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 import library.entities.Member;
 import library.interfaces.entities.IMember;
 
+import java.lang.*;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class MemberTest
 {
@@ -17,6 +21,9 @@ public class MemberTest
   private String lName         = "Bob";
   private String email         = "jb@b.com";
   private String contactNumber = "02222222";
+  
+  @Rule
+  public ExpectedException thrown= ExpectedException.none();
 
   @Before
   public void setUp () throws Exception
@@ -43,7 +50,19 @@ public class MemberTest
   @Test
   public void testSane ()
   {
-    ;
+    // no exception should be thrown
+    member = new Member(iD, fName, lName, email, contactNumber);
+    // Beginning of thrown exception tests
+    thrown.expect(RuntimeException.class);
+    member = new Member(0, fName, lName, email, contactNumber);
+    thrown.expect(RuntimeException.class);
+    member = new Member(iD, null, lName, email, contactNumber);
+    thrown.expect(RuntimeException.class);
+    member = new Member(iD, fName, null, email, contactNumber);
+    thrown.expect(RuntimeException.class);
+    member = new Member(iD, fName, lName, null, contactNumber);
+    thrown.expect(RuntimeException.class);
+    member = new Member(iD, fName, lName, email, null);
   }
   
 
