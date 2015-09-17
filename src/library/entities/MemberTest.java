@@ -44,7 +44,7 @@ public class MemberTest
   @Test
   public void testMember ()
   {
-    assertNotNull(member);
+    assertNotNull (member);
   }
   
   @Test
@@ -69,7 +69,7 @@ public class MemberTest
   @Test
   public void testHasOverDueLoans ()
   {
-    fail ("Not yet implemented");
+    assertFalse (member.hasOverDueLoans());
   }
 
 

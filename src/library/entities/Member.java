@@ -1,6 +1,8 @@
 package library.entities;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import library.interfaces.entities.EMemberState;
@@ -18,6 +20,7 @@ public class Member implements IMember
   private EMemberState state;
   private List<ILoan> loan;
   private float fineAmount;
+  private Date currentDate = new Date();
 
   
   public Member(int iD, String firstName, String lastName, String email, 
@@ -72,8 +75,29 @@ public class Member implements IMember
   @Override
   public boolean hasOverDueLoans ()
   {
-    // TODO Auto-generated method stub
-    return false;
+    for (int i = 0; i < loan.size (); i++)
+    {
+      if (loan.iterator().hasNext())
+      {
+        if (loan.iterator().next().checkOverDue (currentDate))
+        {          
+        boolean isOverDue = loan.iterator().next().isOverDue();
+          if (isOverDue)
+          {
+            return true;
+          }
+          else 
+          {
+            return false;
+          }
+        }
+        else 
+        {
+          return false;
+        }
+      }
+    }
+      return false;
   }
 
 
