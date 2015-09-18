@@ -2,9 +2,7 @@ package library.entities;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import library.entities.Member;
 import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.ILoan;
@@ -20,12 +18,13 @@ public class MemberTest
 {
   
   IMember member;
-  List<ILoan> loan;
+  ILoan loan;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
   private String email         = "jb@b.com";
   private String contactNumber = "02222222";
+  private float fineAmount     = 0.0f;
   
   @Rule
   public ExpectedException thrown= ExpectedException.none();
@@ -42,6 +41,7 @@ public class MemberTest
   public void tearDown () throws Exception
   {
     member = null;
+    loan = null;
   }
 
 
@@ -142,19 +142,26 @@ public class MemberTest
   @Test
   public void testAddLoan ()
   {
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-    thrown.expect(RuntimeException.class);
-    member.addLoan ((ILoan) loan);
-    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState()); 
+	  loan = (ILoan) new Loan();
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+      assertEquals(member.getLoans().get(0), loan);
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+      assertEquals(member.getLoans().get(1), loan);
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+      assertEquals(member.getLoans().get(2), loan);
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+      assertEquals(member.getLoans().get(3), loan);
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+      assertEquals(member.getLoans().get(4), loan);
+      thrown.expect(RuntimeException.class);
+      member.addLoan (loan);
+      assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+      assertNotEquals(member.getLoans().get(5), loan);
   }
 
 
@@ -162,8 +169,8 @@ public class MemberTest
   @Test
   public void testGetLoans ()
   {
-    member.addLoan((ILoan)loan);
-    assertEquals(member.getLoans().get(0), (ILoan)loan);
+    member.addLoan(loan);
+    assertEquals(member.getLoans().get(0), loan);
   }
 
 
@@ -171,7 +178,10 @@ public class MemberTest
   @Test
   public void testRemoveLoan ()
   {
-    fail ("Not yet implemented");
+    member.addLoan(loan);
+    assertEquals(member.getLoans().get(0), loan);
+    member.removeLoan(loan);
+    assertNotEquals(member.getLoans(), loan);
   }
 
 
@@ -187,7 +197,7 @@ public class MemberTest
   @Test
   public void testGetFirstName ()
   {
-    fail ("Not yet implemented");
+	  assertEquals(member.getFirstName(), fName);
   }
 
 
@@ -195,7 +205,7 @@ public class MemberTest
   @Test
   public void testGetLastName ()
   {
-    fail ("Not yet implemented");
+	  assertEquals(member.getLastName(), lName);
   }
 
 
@@ -203,7 +213,7 @@ public class MemberTest
   @Test
   public void testGetContactPhone ()
   {
-    fail ("Not yet implemented");
+	  assertEquals(member.getContactPhone(), contactNumber);
   }
 
 
@@ -211,7 +221,7 @@ public class MemberTest
   @Test
   public void testGetEmailAddress ()
   {
-    fail ("Not yet implemented");
+	  assertEquals(member.getEmailAddress(), email);
   }
 
 
@@ -219,9 +229,32 @@ public class MemberTest
   @Test
   public void testGetID ()
   {
-    fail ("Not yet implemented");
+	  assertEquals(member.getID(), iD);
   }
 
 
-
+  
+  @Test
+  public void testToString()
+  {
+	  String expected = String.format("Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s"
+              						  + "\nTotal Fines: %.2f", 
+              						  new Object[] {iD, fName, lName, contactNumber, 
+              						  email, fineAmount});
+	  assertEquals (expected, member.toString());
+  }
+  
+  
+  @Test
+  public void testBorrowingAllowed()
+  {
+    fail ("Not yet implemented");
+  }
+  
+  
+  @Test
+  public void testUpdateStatus()
+  {
+    fail ("Not yet implemented");
+  }
 }

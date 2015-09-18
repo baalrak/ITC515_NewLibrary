@@ -19,7 +19,7 @@ public class Member implements IMember
   private String email;
   private String contactNumber;
   private EMemberState state;
-  private List<ILoan> loan;
+  private List<ILoan> totalLoans;
   private float fineAmount;
   private Date currentDate = new Date();
   private final int MAX_LOANS = 5;
@@ -37,8 +37,9 @@ public class Member implements IMember
       this.email         = email;
       this.contactNumber = contactNumber;
       state = EMemberState.BORROWING_ALLOWED;
-      loan = new ArrayList();
+      totalLoans = new ArrayList();
       fineAmount = 0.0f;
+      return;
     }
   }
   
@@ -76,31 +77,17 @@ public class Member implements IMember
   
   
   @Override
-  public boolean hasOverDueLoans ()
+  public boolean hasOverDueLoans()
   {
-    for (int i = 0; i < loan.size (); i++)
-    {
-      if (loan.iterator().hasNext())
-      {
-        if (loan.iterator().next().checkOverDue (currentDate))
-        {          
-        boolean isOverDue = loan.iterator().next().isOverDue();
-          if (isOverDue)
-          {
-            return true;
-          }
-          else 
-          {
-            return false;
-          }
-        }
-        else 
-        {
-          return false;
-        }
-      }
-    }
-      return false;
+   for (int i = 0; i < totalLoans.size() -1; i++)
+   {
+	 if (totalLoans.iterator().hasNext())
+      if (totalLoans.get(i).isOverDue())
+       {
+        return true;
+       }
+   }
+    return false;
   }
 
 
@@ -108,14 +95,11 @@ public class Member implements IMember
   @Override
   public boolean hasReachedLoanLimit ()
   {
-    if (loan.size() > MAX_LOANS)
+    if (totalLoans.size() >= MAX_LOANS)
       {
       return true;
       }
-    else
-    {
-      return false;
-    }
+    return false;
   }
 
 
@@ -138,14 +122,8 @@ public class Member implements IMember
   @Override
   public boolean hasReachedFineLimit ()
   {
-    if (hasFinesPayable() && fineAmount > MAX_FINES)
-    {
-      return true;
-    }
-    else 
-    {
-      return false;  
-    }
+    boolean limit = (fineAmount >= MAX_FINES);
+    return limit;  
   }
 
 
@@ -168,14 +146,7 @@ public class Member implements IMember
     else
     {
     fineAmount += fine;
-    if (fineAmount > MAX_FINES)
-    {
-      state = EMemberState.BORROWING_DISALLOWED;
-    }
-    else
-    {
-      state = EMemberState.BORROWING_ALLOWED;
-    }
+    updateState();
     }
   }
 
@@ -192,14 +163,8 @@ public class Member implements IMember
     else
     {
     fineAmount -= payment;
-    if (fineAmount <= MAX_FINES)
-    {
-      state = EMemberState.BORROWING_ALLOWED;
-    }
-    else
-    {
-      state = EMemberState.BORROWING_DISALLOWED;
-    }
+    updateState();
+    return;
     }
   }
 
@@ -208,35 +173,24 @@ public class Member implements IMember
   @Override
   public void addLoan (ILoan loan)
   {
-    if (state == EMemberState.BORROWING_ALLOWED)
+    if (!borrowingAllowed())
     { 
-      if (this.loan.size() < MAX_LOANS)
-      {
-        this.loan.add(loan);
-      }
-      else
-      {
-        state = EMemberState.BORROWING_DISALLOWED;
-        throw new RuntimeException("Member " + firstName + "" + lastName + " has"
-                                   + " the maximum amount of loans!");
-      }
+      throw new RuntimeException("Member " + firstName + " " + lastName + " "
+                                 + "cannot borrow any more books at this "
+                                 + "time!");
     }
-    else
-    {
-    throw new RuntimeException("Member " + firstName + "" + lastName + " "
-                               + "cannot borrow any more books at this "
-                               + "time!");
+    else{
+      totalLoans.add (loan);
+      updateState();
     }
-    
-
-  }
+    }
 
 
 
   @Override
   public List<ILoan> getLoans ()
   {
-    return loan;
+    return totalLoans;
   }
 
 
@@ -244,7 +198,15 @@ public class Member implements IMember
   @Override
   public void removeLoan (ILoan loan)
   {
-    // TODO Auto-generated method stub
+    if (totalLoans.contains (loan))
+    {
+      totalLoans.remove (loan);
+    }
+    else 
+    {
+      throw new RuntimeException("Loan is not in the listed loans for Member: " 
+    		  					 + firstName + " " + lastName);
+    }
 
   }
 
@@ -294,6 +256,45 @@ public class Member implements IMember
   public int getID ()
   {
     return iD;
+  }
+  
+  
+  
+  public String toString()
+  {
+    return String.format("Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s"
+                         + "\nTotal Fines: %.2f", 
+                         new Object[] {iD, firstName, lastName, contactNumber, 
+                                       email, fineAmount});
+  }
+  
+  
+  
+  private boolean borrowingAllowed()
+  {
+    if (hasReachedLoanLimit() || hasOverDueLoans() || hasReachedFineLimit())
+    {
+        return false;
+    }
+    else
+    {
+    	return true;
+    }
+  }
+  
+  
+  private void updateState()
+  {
+    if (borrowingAllowed())
+    {
+      state = EMemberState.BORROWING_ALLOWED;
+      return;
+    }
+    else 
+    {
+      state = EMemberState.BORROWING_DISALLOWED;
+      return;
+    }
   }
 
 }
