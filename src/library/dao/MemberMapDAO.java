@@ -1,19 +1,40 @@
 package library.dao;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import library.interfaces.daos.IMemberDAO;
+import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IMember;
 
 public class MemberMapDAO implements IMemberDAO
 {
+  private IMemberHelper memberHelper;
+  private int iD;
+  LinkedList list;
+  
+  public MemberMapDAO(IMemberHelper helper)
+  {
+    if (helper == null)
+    {
+      throw new RuntimeException("helper cannot be null!");
+    }
+    else
+    {
+      memberHelper = helper;
+      iD = 1;
+      list = new LinkedList();
+    }
+  }
 
   @Override
   public IMember addMember (String firstName, String lastName,
-      String ContactPhone, String emailAddress)
+      String contactPhone, String emailAddress)
   {
-    // TODO Auto-generated method stub
-    return null;
+    IMember newMember = memberHelper.makeMember (firstName, lastName,contactPhone,
+                                                 emailAddress, iD);
+    list.add (newMember.getID (), newMember);
+    return newMember;
   }
 
   @Override
@@ -50,5 +71,11 @@ public class MemberMapDAO implements IMemberDAO
     // TODO Auto-generated method stub
     return null;
   }
+  
+  private int getNextId()
+  {
+  return iD++
+  }
+  
 
 }
