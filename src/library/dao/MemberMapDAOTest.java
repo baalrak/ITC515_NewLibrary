@@ -31,6 +31,7 @@ public class MemberMapDAOTest
   public void setUp () throws Exception
   {
     memberHelper = new MemberHelper();
+    map = new MemberMapDAO(memberHelper);
     memberHelper.makeMember (fName, lName, contactNumber, email, iD);
     
   }
@@ -64,7 +65,6 @@ public class MemberMapDAOTest
   @Test
   public void testAddMember ()
   {
-    map = new MemberMapDAO(memberHelper);
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
   }
 
@@ -73,7 +73,11 @@ public class MemberMapDAOTest
   @Test
   public void testGetMemberByID ()
   {
-    fail ("Not yet implemented");
+    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    map.getMemberByID (1);
+    assertNotNull(map.getMemberByID(1));
+    thrown.expect (RuntimeException.class);
+    map.getMemberByID (2);
   }
 
 

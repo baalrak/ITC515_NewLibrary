@@ -49,8 +49,15 @@ public class MemberMapDAO implements IMemberDAO
   @Override
   public IMember getMemberByID (int id)
   {
-    // TODO Auto-generated method stub
-    return null;
+    if((IMember)list.get(id) == null)
+    {
+      throw new RuntimeException("That Member Does not exist!");
+    } 
+    else
+    {
+      System.out.println((IMember)list.get(id));
+      return (IMember)list.get(id);
+    }
   }
 
   
