@@ -90,7 +90,6 @@ public class MemberMapDAO implements IMemberDAO
           membersByLastName.add ((IMember) list.get (i));
         }
   }
-    System.out.println (membersByLastName);
     return membersByLastName;
   }
 
@@ -112,7 +111,6 @@ public class MemberMapDAO implements IMemberDAO
           membersByEmailAddress.add ((IMember) list.get (i));
         }
   }
-    System.out.println (membersByEmailAddress);
     return membersByEmailAddress;
   }
 
@@ -136,7 +134,6 @@ public class MemberMapDAO implements IMemberDAO
           membersByName.add ((IMember) list.get (i));
         }
   }
-    System.out.println (membersByName);
     return membersByName;
   }
   
