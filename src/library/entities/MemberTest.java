@@ -75,6 +75,7 @@ public class MemberTest
   public void testHasOverDueLoans ()
   {
     assertFalse (member.hasOverDueLoans());
+    // Loan class needs to be implemented to test assertTrue.
   }
 
 
@@ -82,7 +83,18 @@ public class MemberTest
   @Test
   public void testHasReachedLoanLimit ()
   {
+    //loan limit not reached
     assertFalse (member.hasReachedLoanLimit());
+    //loan limit reached
+    loan = (ILoan) new Loan();
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    thrown.expect(RuntimeException.class);
+    member.addLoan (loan);
+    assertTrue(member.hasReachedLoanLimit());
   }
 
 
@@ -91,6 +103,8 @@ public class MemberTest
   public void testHasFinesPayable ()
   {
     assertFalse (member.hasFinesPayable());
+    member.addFine(11.0f);
+    assertTrue (member.hasFinesPayable ());
   }
 
 
@@ -99,6 +113,8 @@ public class MemberTest
   public void testHasReachedFineLimit ()
   {
     assertFalse (member.hasReachedFineLimit());
+    member.addFine(11.0f);
+    assertTrue(member.hasReachedFineLimit());
   }
 
 
@@ -107,6 +123,8 @@ public class MemberTest
   public void testGetFineAmount ()
   {
   assertEquals(0.0f, member.getFineAmount(), 0.001f);
+  member.addFine(11.0f);
+  assertEquals(11.0f, member.getFineAmount(), 0.001f);
   }
 
 
@@ -197,7 +215,7 @@ public class MemberTest
   @Test
   public void testGetFirstName ()
   {
-	  assertEquals(member.getFirstName(), fName);
+	assertEquals(member.getFirstName(), fName);
   }
 
 
@@ -205,7 +223,7 @@ public class MemberTest
   @Test
   public void testGetLastName ()
   {
-	  assertEquals(member.getLastName(), lName);
+	assertEquals(member.getLastName(), lName);
   }
 
 
@@ -213,7 +231,7 @@ public class MemberTest
   @Test
   public void testGetContactPhone ()
   {
-	  assertEquals(member.getContactPhone(), contactNumber);
+	assertEquals(member.getContactPhone(), contactNumber);
   }
 
 
@@ -221,7 +239,7 @@ public class MemberTest
   @Test
   public void testGetEmailAddress ()
   {
-	  assertEquals(member.getEmailAddress(), email);
+	assertEquals(member.getEmailAddress(), email);
   }
 
 
@@ -229,7 +247,7 @@ public class MemberTest
   @Test
   public void testGetID ()
   {
-	  assertEquals(member.getID(), iD);
+	assertEquals(member.getID(), iD);
   }
 
 
@@ -237,24 +255,65 @@ public class MemberTest
   @Test
   public void testToString()
   {
-	  String expected = String.format("Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s"
-              						  + "\nTotal Fines: %.2f", 
-              						  new Object[] {iD, fName, lName, contactNumber, 
-              						  email, fineAmount});
-	  assertEquals (expected, member.toString());
+	String expected = String.format("Id: %d\nName: %s %s\nContact Phone: %s"
+	                                + "\nEmail: %s\nTotal Fines: %.2f", 
+              						new Object[] {iD, fName, lName, 
+	                                              contactNumber, email, 
+	                                              fineAmount});
+	assertEquals (expected, member.toString());
   }
   
   
   @Test
   public void testBorrowingAllowed()
   {
-    fail ("Not yet implemented");
+    // first test hasReachedLoanLimit is true
+    loan = (ILoan) new Loan();
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    thrown.expect(RuntimeException.class);
+    member.addLoan (loan);
+    assertTrue(member.hasReachedLoanLimit());
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    
+    
+    // Second Test hasReachedFineLimit
+    member.addFine(11.0f);
+    assertTrue(member.hasReachedFineLimit());
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    
+    
+    // Third test hasOverDueLoans (Unable to test without Loan class implemented)
+    
+    // Fourth test borrowing allowed
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());   
   }
   
   
   @Test
-  public void testUpdateStatus()
+  public void testUpdateState()
   {
-    fail ("Not yet implemented");
+    // testing state borrowing disallowed.
+    loan = (ILoan) new Loan();
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    thrown.expect(RuntimeException.class);
+    member.addLoan (loan);
+    assertTrue(member.hasReachedLoanLimit());
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    
+    // testing state borrowing allowed
+    loan = (ILoan) new Loan();
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
   }
 }
