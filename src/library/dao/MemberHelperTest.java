@@ -36,7 +36,7 @@ public class MemberHelperTest
   }
  
   @Test
-  public void test ()
+  public void testMakeMember ()
   {
     IMember test = memberHelper.makeMember (fName, lName, contactNumber, email, 
         iD);

@@ -9,9 +9,12 @@ import library.interfaces.entities.IMember;
 
 public class MemberMapDAO implements IMemberDAO
 {
+  
   private IMemberHelper memberHelper;
-  private int iD;
-  LinkedList list;
+  private int           iD;
+  LinkedList            list;
+  
+  
   
   public MemberMapDAO(IMemberHelper helper)
   {
@@ -24,19 +27,25 @@ public class MemberMapDAO implements IMemberDAO
       memberHelper = helper;
       iD = 1;
       list = new LinkedList();
+      list.add (0, null);
     }
   }
 
+  
+  
   @Override
   public IMember addMember (String firstName, String lastName,
       String contactPhone, String emailAddress)
   {
+    this.iD = getNextId();
     IMember newMember = memberHelper.makeMember (firstName, lastName,contactPhone,
-                                                 emailAddress, iD);
-    list.add (newMember.getID (), newMember);
+                                                 emailAddress, this.iD);
+    list.add (newMember.getID(), newMember);
     return newMember;
   }
 
+  
+  
   @Override
   public IMember getMemberByID (int id)
   {
@@ -44,6 +53,8 @@ public class MemberMapDAO implements IMemberDAO
     return null;
   }
 
+  
+  
   @Override
   public List<IMember> listMembers ()
   {
@@ -51,6 +62,8 @@ public class MemberMapDAO implements IMemberDAO
     return null;
   }
 
+  
+  
   @Override
   public List<IMember> findMembersByLastName (String lastName)
   {
@@ -58,6 +71,8 @@ public class MemberMapDAO implements IMemberDAO
     return null;
   }
 
+  
+  
   @Override
   public List<IMember> findMembersByEmailAddress (String emailAddress)
   {
@@ -65,6 +80,8 @@ public class MemberMapDAO implements IMemberDAO
     return null;
   }
 
+  
+  
   @Override
   public List<IMember> findMembersByNames (String firstName, String lastName)
   {
@@ -72,9 +89,11 @@ public class MemberMapDAO implements IMemberDAO
     return null;
   }
   
+  
+  
   private int getNextId()
   {
-  return iD++
+  return iD++;
   }
   
 
