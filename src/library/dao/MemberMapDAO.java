@@ -99,19 +99,46 @@ public class MemberMapDAO implements IMemberDAO
   @Override
   public List<IMember> findMembersByEmailAddress (String emailAddress)
   {
-    // TODO Auto-generated method stub
-    return null;
+    List<IMember> membersByEmailAddress = new LinkedList();
+    if(emailAddress == null || emailAddress.isEmpty())
+    {
+      throw new RuntimeException("This member does not exist!");
+    }
+    for(int i = 1; i < list.size(); i++)
+    {
+      String m = list.get(i).toString ();
+        if(m.contains(emailAddress))
+        {
+          membersByEmailAddress.add ((IMember) list.get (i));
+        }
+  }
+    System.out.println (membersByEmailAddress);
+    return membersByEmailAddress;
   }
 
   
   
   @Override
   public List<IMember> findMembersByNames (String firstName, String lastName)
-  {
-    // TODO Auto-generated method stub
-    return null;
+ {
+    List<IMember> membersByName = new LinkedList();
+    if(lastName == null || lastName.isEmpty() || firstName == null || 
+       firstName.isEmpty ())
+      
+    {
+      throw new RuntimeException("This member does not exist!");
+    }
+    for(int i = 1; i < list.size(); i++)
+    {
+      String m = list.get(i).toString ();
+        if(m.contains(lastName) && m.contains (firstName))
+        {
+          membersByName.add ((IMember) list.get (i));
+        }
   }
-  
+    System.out.println (membersByName);
+    return membersByName;
+  }
   
   
   private int getNextId()

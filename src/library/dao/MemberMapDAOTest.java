@@ -110,7 +110,9 @@ public class MemberMapDAOTest
   @Test
   public void testFindMembersByEmailAddress ()
   {
-    fail ("Not yet implemented");
+    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
+    assertNotNull(map.findMembersByEmailAddress("rp@wow.com"));
   }
 
 
@@ -118,7 +120,9 @@ public class MemberMapDAOTest
   @Test
   public void testFindMembersByNames ()
   {
-    fail ("Not yet implemented");
+    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
+    assertNotNull(map.findMembersByNames("Ren", "Pampers"));
   }
 
 }
