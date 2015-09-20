@@ -8,6 +8,7 @@ import java.util.Map;
 import library.entities.Member;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
+import library.interfaces.entities.IMember;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.junit.rules.ExpectedException;
 
 public class MemberMapDAOTest
 {
+  IMember member;
   IMemberHelper memberHelper;
   IMemberDAO map;
   IMemberDAO map2;
@@ -76,8 +78,11 @@ public class MemberMapDAOTest
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.getMemberByID (1);
     assertNotNull(map.getMemberByID(1));
-    thrown.expect (RuntimeException.class);
+    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     map.getMemberByID (2);
+    assertNotNull(map.getMemberByID(2));
+    thrown.expect (RuntimeException.class);
+    map.getMemberByID (3);
   }
 
 
@@ -85,7 +90,9 @@ public class MemberMapDAOTest
   @Test
   public void testListMembers ()
   {
-    fail ("Not yet implemented");
+    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
+    map.listMembers ();
   }
 
 
@@ -93,7 +100,9 @@ public class MemberMapDAOTest
   @Test
   public void testFindMembersByLastName ()
   {
-    fail ("Not yet implemented");
+    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
+    assertNotNull(map.findMembersByLastName("Pampers"));
   }
 
 

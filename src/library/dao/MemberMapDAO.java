@@ -1,7 +1,12 @@
 package library.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
@@ -55,7 +60,6 @@ public class MemberMapDAO implements IMemberDAO
     } 
     else
     {
-      System.out.println((IMember)list.get(id));
       return (IMember)list.get(id);
     }
   }
@@ -65,8 +69,7 @@ public class MemberMapDAO implements IMemberDAO
   @Override
   public List<IMember> listMembers ()
   {
-    // TODO Auto-generated method stub
-    return null;
+      return list;
   }
 
   
@@ -74,8 +77,21 @@ public class MemberMapDAO implements IMemberDAO
   @Override
   public List<IMember> findMembersByLastName (String lastName)
   {
-    // TODO Auto-generated method stub
-    return null;
+    List<IMember> membersByLastName = new LinkedList();
+    if(lastName == null || lastName.isEmpty())
+    {
+      throw new RuntimeException("This member does not exist!");
+    }
+    for(int i = 1; i < list.size(); i++)
+    {
+      String m = list.get(i).toString ();
+        if(m.contains(lastName))
+        {
+          membersByLastName.add ((IMember) list.get (i));
+        }
+  }
+    System.out.println (membersByLastName);
+    return membersByLastName;
   }
 
   
@@ -100,7 +116,7 @@ public class MemberMapDAO implements IMemberDAO
   
   private int getNextId()
   {
-  return iD++;
+    return list.size ();
   }
   
 
