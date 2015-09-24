@@ -1,10 +1,15 @@
 package library.entities;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
 import library.entities.Member;
 import library.interfaces.entities.EMemberState;
+import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 
@@ -19,12 +24,18 @@ public class MemberTest
   
   IMember member;
   ILoan loan;
+  IBook book;
+  Date currentDate; 
+  Date overDueDate;
+  static Calendar cal;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
   private String email         = "jb@b.com";
   private String contactNumber = "02222222";
   private float fineAmount     = 0.0f;
+
+  
   
   @Rule
   public ExpectedException thrown= ExpectedException.none();
@@ -32,7 +43,9 @@ public class MemberTest
   @Before
   public void setUp () throws Exception
   {
+    cal = Calendar.getInstance ();
     member = new Member(iD, fName, lName, email, contactNumber);
+    book = new Book("JIM", "JAMES", "JJ", 003);
   }
 
 
@@ -75,6 +88,8 @@ public class MemberTest
   public void testHasOverDueLoans ()
   {
     assertFalse (member.hasOverDueLoans());
+    assertEquals (member.hasOverDueLoans (),loan.isOverDue());
+    
     // Loan class needs to be implemented to test assertTrue.
   }
 
@@ -83,10 +98,17 @@ public class MemberTest
   @Test
   public void testHasReachedLoanLimit ()
   {
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    overDueDate = cal.getTime();
+    //cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    //overdueDate = cal.getTime();
     //loan limit not reached
     assertFalse (member.hasReachedLoanLimit());
     //loan limit reached
-    loan = (ILoan) new Loan();
+    loan = new Loan(book, member, currentDate, overDueDate);
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -160,7 +182,12 @@ public class MemberTest
   @Test
   public void testAddLoan ()
   {
-	  loan = (ILoan) new Loan();
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    overDueDate = cal.getTime();
+	  loan = (ILoan) new Loan(null, member, null, null);
       member.addLoan (loan);
       assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
       assertEquals(member.getLoans().get(0), loan);
@@ -196,6 +223,11 @@ public class MemberTest
   @Test
   public void testRemoveLoan ()
   {
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    overDueDate = cal.getTime();
     member.addLoan(loan);
     assertEquals(member.getLoans().get(0), loan);
     member.removeLoan(loan);
@@ -261,14 +293,20 @@ public class MemberTest
 	                                              contactNumber, email, 
 	                                              fineAmount});
 	assertEquals (expected, member.toString());
+	System.out.println(member.toString ());
   }
   
   
   @Test
   public void testBorrowingAllowed()
   {
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    overDueDate = cal.getTime();
     // first test hasReachedLoanLimit is true
-    loan = (ILoan) new Loan();
+    loan = (ILoan) new Loan(null, member, null, null);
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -296,8 +334,13 @@ public class MemberTest
   @Test
   public void testUpdateState()
   {
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    overDueDate = cal.getTime();
     // testing state borrowing disallowed.
-    loan = (ILoan) new Loan();
+    loan = (ILoan) new Loan(null, member, null, null);
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -309,7 +352,7 @@ public class MemberTest
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
     
     // testing state borrowing allowed
-    loan = (ILoan) new Loan();
+    loan = (ILoan) new Loan(null, member, null, null);
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);

@@ -22,8 +22,8 @@ public class Member implements IMember
   private List<ILoan> totalLoans;
   private float fineAmount;
   private Date currentDate = new Date();
-  private final int MAX_LOANS = 5;
-  private final float MAX_FINES = 10.0f;
+  private final int LOAN_LIMIT = 5;
+  private final float FINE_LIMIT = 10.0f;
 
   
   public Member(int iD, String firstName, String lastName, String email, 
@@ -95,7 +95,7 @@ public class Member implements IMember
   @Override
   public boolean hasReachedLoanLimit ()
   {
-    if (totalLoans.size() >= MAX_LOANS)
+    if (totalLoans.size() >= LOAN_LIMIT)
       {
       return true;
       }
@@ -122,7 +122,7 @@ public class Member implements IMember
   @Override
   public boolean hasReachedFineLimit ()
   {
-    boolean limit = (fineAmount >= MAX_FINES);
+    boolean limit = (fineAmount >= FINE_LIMIT);
     return limit;  
   }
 
@@ -158,7 +158,7 @@ public class Member implements IMember
     if (payment <= 0.0f || payment > fineAmount)
     {
       throw new RuntimeException ("Payment amount must be greater than $0.00 and"
-                                  + " less than" + MAX_FINES);
+                                  + " less than" + FINE_LIMIT);
     }
     else
     {

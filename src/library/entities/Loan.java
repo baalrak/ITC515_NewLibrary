@@ -1,82 +1,115 @@
 package library.entities;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 import library.interfaces.entities.IBook;
+import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
+import library.interfaces.entities.ELoanState;
 
-public class Loan implements library.interfaces.entities.ILoan {
+public class Loan implements ILoan {
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
+	private int id;
+	private final IMember borrower;
+	private final IBook book;
+	private Date borrowDate;
+	private Date dueDate;
+	private ELoanState state;
+	
+	public Loan(IBook book, IMember borrower, Date borrowDate, Date returnDate) {
+		if (sane(book,borrower,borrowDate,returnDate) == false) {
+		    System.out.println(sane(book,borrower,borrowDate,returnDate));
+			throw new IllegalArgumentException("Loan: constructor : bad parameters");
+		}
+		this.book = book;
+		this.borrower = borrower;
+		this.borrowDate = borrowDate;
+		this.dueDate = returnDate;	
+		this.state = ELoanState.PENDING;
+	}
+	
+	private boolean sane(IBook book, IMember borrower, Date borrowDate, Date returnDate) {
+	    //System.out.println(borrowDate.before (returnDate));
+		return  ( book != null && 
+				  borrower != null && 
+				  borrowDate != null && 
+				  returnDate != null &&
+				  borrowDate.before (returnDate));
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
-	}
-
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
-	}
-
-	@Override
-	public void commit(int id) {
-		// TODO Auto-generated method stub
-		
+	public void commit(int loanId) {
+		if (!(state == ELoanState.PENDING)) {
+			throw new RuntimeException(
+					String.format("Loan : commit : incorrect state transition  : %s -> %s\n", 
+							state, ELoanState.CURRENT));
+		}
+		if (loanId <= 0) {
+			throw new RuntimeException(
+					String.format("Loan : commit : id must be a positive integer  : %d\n", 
+							loanId));
+		}
+		this.id = loanId;
+		state = ELoanState.CURRENT;
+		book.borrow(this);
+		borrower.addLoan(this);
 	}
 
 	@Override
 	public void complete() {
-		// TODO Auto-generated method stub
-		
+		if (!(state == ELoanState.CURRENT || state == ELoanState.OVERDUE)) {
+			throw new RuntimeException(
+					String.format("Loan : complete : incorrect state transition  : %s -> %s\n",
+							state, ELoanState.COMPLETE));
+		}
+		state = ELoanState.COMPLETE;		
 	}
 
 	@Override
 	public boolean isOverDue() {
-		// TODO Auto-generated method stub
-		return false;
+		return (state == ELoanState.OVERDUE);
 	}
 
 	@Override
 	public boolean checkOverDue(Date currentDate) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(state == ELoanState.CURRENT || state == ELoanState.OVERDUE )) {
+			throw new RuntimeException(
+					String.format("Loan : checkOverDue : incorrect state transition  : %s -> %s\n",
+							state, ELoanState.OVERDUE));
+		}
+		if (currentDate.compareTo(dueDate) > 0) {
+			state = ELoanState.OVERDUE;
+		}
+		return isOverDue();
 	}
 
 	@Override
 	public IMember getBorrower() {
-		// TODO Auto-generated method stub
-		return null;
+		return borrower;
 	}
 
 	@Override
 	public IBook getBook() {
-		// TODO Auto-generated method stub
-		return null;
+		return book;
 	}
 
 	@Override
 	public int getID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
+	
+	public ELoanState getState() {
+		return state;
+	}
+
+	@Override
+	public String toString() {
+		return (String.format("Loan ID:  %d\nAuthor:   %s\nTitle:    %s\nBorrower: %s %s\nBorrowed: %s\nDue Date: %s", 
+				id, book.getAuthor(), book.getTitle(), borrower.getFirstName(), borrower.getLastName(),
+				DateFormat.getDateInstance().format(borrowDate),
+				DateFormat.getDateInstance().format(dueDate)));
+	}
+
 
 }

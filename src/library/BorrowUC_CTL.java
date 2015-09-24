@@ -65,9 +65,54 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cardSwiped(int memberID) {
-		throw new RuntimeException("Not implemented yet");
-	}
-	
+	  System.out.println("cardSwiped: " + memberID);
+	    if(!state.equals(EBorrowState.INITIALIZED))
+	    {
+	      throw new RuntimeException("There was an error with the card swiped"
+	                                   + " in it's cur state: " + state);
+	    }
+	    borrower = memberDAO.getMemberByID(memberID);
+	    if(borrower == null)
+	    {
+	       ui.displayErrorMessage("Member " + memberID + "cannot be found");
+	       return;
+	    }
+	    boolean isOverdue = borrower.hasOverDueLoans();
+	    boolean isAtLoanLimit = borrower.hasReachedLoanLimit();
+	    boolean isAtFineLimit = borrower.hasReachedFineLimit();
+	    if (isOverdue || isAtLoanLimit || isAtFineLimit)
+	    {
+	      setState(EBorrowState.BORROWING_RESTRICTED);
+	    }
+	    boolean hasFines = borrower.hasFinesPayable();
+	    setState(EBorrowState.SCANNING_BOOKS);
+	    int borrowerID = borrower.getID();
+	    String borrowerName = (borrower.getFirstName() + " " + borrower.getLastName());
+	    String borrowerContact = borrower.getContactPhone();
+	    ui.displayMemberDetails(borrowerID, borrowerName, borrowerContact);
+	    if(hasFines)
+	    {
+	      ui.displayOutstandingFineMessage(borrower.getFineAmount ());
+	    }
+	    if(isOverdue)
+	    {
+	      ui.displayOverDueMessage();
+	    }
+	    if(isAtLoanLimit)
+	    {
+	      ui.displayAtLoanLimitMessage();
+	    }
+	    if(isAtFineLimit)
+	    {
+	      System.out.println("State: " + state);
+	      ui.displayOverFineLimitMessage(borrower.getFineAmount() - 
+	                                     borrower.FINE_LIMIT);
+	    }
+	    String loanString = buildLoanListDisplay(borrower.getLoans());
+	    ui.displayExistingLoan(loanString);
+	    }
+	    
+	    
 	
 	
 	@Override
