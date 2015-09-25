@@ -3,7 +3,6 @@ package library.dao;
 import static org.junit.Assert.*;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
-import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 
 import org.junit.After;
@@ -18,8 +17,6 @@ public class MemberMapDAOTest
   IMemberHelper memberHelper;
   IMemberDAO map;
   IMemberDAO map2;
-  MemberMapDAO test;
-  ILoan loan;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
@@ -106,11 +103,9 @@ public class MemberMapDAOTest
   @Test
   public void testFindMembersByLastName ()
   {
-    String testMember = ("Ren" + " " + "Pampers" + " " + "223322335" + " " + "rp@wow.com");
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByLastName("Pampers"));
-    assertEquals(map.findMembersByLastName("Pampers"), member.toString ());
   }
 
 
