@@ -85,6 +85,18 @@ public class Loan implements ILoan {
 	}
 
 	@Override
+	public boolean isCurrent() {
+		if (state == ELoanState.CURRENT)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
 	public IMember getBorrower() {
 		return borrower;
 	}

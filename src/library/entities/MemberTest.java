@@ -1,13 +1,12 @@
 package library.entities;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-
+import library.dao.LoanHelper;
+import library.dao.LoanMapDAO;
 import library.entities.Member;
+import library.interfaces.daos.ILoanHelper;
 import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
@@ -18,16 +17,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
 
 public class MemberTest
 {
-  
+  Mock mock;
   IMember member;
   ILoan loan;
   IBook book;
   Date currentDate; 
+  Date dueByDate;
   Date overDueDate;
-  static Calendar cal;
+  Calendar cal;
+  LoanMapDAO loanMap;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
@@ -46,6 +48,15 @@ public class MemberTest
     cal = Calendar.getInstance ();
     member = new Member(iD, fName, lName, email, contactNumber);
     book = new Book("JIM", "JAMES", "JJ", 003);
+    cal = Calendar.getInstance();
+    currentDate = new Date();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
+    dueByDate = cal.getTime();
+    cal.setTime(currentDate);
+    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD*2);
+    overDueDate = cal.getTime();
+    loan = new Loan(book, member, currentDate, dueByDate);
   }
 
 
@@ -55,6 +66,7 @@ public class MemberTest
   {
     member = null;
     loan = null;
+    cal = null;
   }
 
 
@@ -68,9 +80,10 @@ public class MemberTest
   @Test
   public void testSane ()
   {
-    // no exception should be thrown
+    // Testing no exception should be thrown
     member = new Member(iD, fName, lName, email, contactNumber);
-    // Beginning of thrown exception tests
+    
+    // Testing thrown exceptions
     thrown.expect(RuntimeException.class);
     member = new Member(0, fName, lName, email, contactNumber);
     thrown.expect(RuntimeException.class);
@@ -87,10 +100,18 @@ public class MemberTest
   @Test
   public void testHasOverDueLoans ()
   {
+	// Member does not have overdue loans
+	member.addLoan(loan);
     assertFalse (member.hasOverDueLoans());
     assertEquals (member.hasOverDueLoans (),loan.isOverDue());
     
-    // Loan class needs to be implemented to test assertTrue.
+    // Member does have overdue loans
+    ILoanHelper lh = new LoanHelper();
+    loanMap = new LoanMapDAO(lh);
+    loanMap.commitLoan(loan);
+    loanMap.updateOverDueStatus(overDueDate);
+    assertTrue(member.hasOverDueLoans());
+    assertEquals(member.hasOverDueLoans(), loan.isOverDue());
   }
 
 
@@ -98,17 +119,10 @@ public class MemberTest
   @Test
   public void testHasReachedLoanLimit ()
   {
-    cal = Calendar.getInstance();
-    currentDate = new Date();
-    cal.setTime(currentDate);
-    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    overDueDate = cal.getTime();
-    //cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    //overdueDate = cal.getTime();
-    //loan limit not reached
+    // Testing loan limit not reached
     assertFalse (member.hasReachedLoanLimit());
-    //loan limit reached
-    loan = new Loan(book, member, currentDate, overDueDate);
+    
+    // Testing loan limit reached
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -124,7 +138,10 @@ public class MemberTest
   @Test
   public void testHasFinesPayable ()
   {
+	// Testing member has no fines payable
     assertFalse (member.hasFinesPayable());
+    
+    // Testing adding a fine to member and now has fines payable
     member.addFine(11.0f);
     assertTrue (member.hasFinesPayable ());
   }
@@ -134,7 +151,10 @@ public class MemberTest
   @Test
   public void testHasReachedFineLimit ()
   {
+	// Testing that member has not reached fine limit
     assertFalse (member.hasReachedFineLimit());
+    
+    // Testing adding a fine and member now reached fine limit.
     member.addFine(11.0f);
     assertTrue(member.hasReachedFineLimit());
   }
@@ -144,9 +164,12 @@ public class MemberTest
   @Test
   public void testGetFineAmount ()
   {
-  assertEquals(0.0f, member.getFineAmount(), 0.001f);
-  member.addFine(11.0f);
-  assertEquals(11.0f, member.getFineAmount(), 0.001f);
+	// Test getting current fine amount from member  
+	assertEquals(0.0f, member.getFineAmount(), 0.001f);
+	
+	// Test adding a new fine amount to member and getting the new amount
+	member.addFine(11.0f);
+	assertEquals(11.0f, member.getFineAmount(), 0.001f);
   }
 
 
@@ -154,10 +177,15 @@ public class MemberTest
   @Test
   public void testAddFine ()
   {
+	// Testing adding a small fine resulting in borrowing still allowed
     member.addFine(5.0f);
     assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    
+    // Testing adding a larger fine resulting in borrowing disallowed
     member.addFine(10.0f);
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    
+    // Testing adding a fine amount of $0.00 which throws an error.
     thrown.expect(RuntimeException.class);
     member.addFine (0.00f);
   }
@@ -167,14 +195,17 @@ public class MemberTest
   @Test
   public void testPayFine ()
   {
+	// Testing adding a fine and then paying some of the fine to change state to 
+    // borrowing allowed.
     member.addFine(10.0f);
     member.payFine(5.0f);
     assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    
+    // Testing adding a fine and then paying some of the fine but not enough to 
+    // change state to borrowing allowed
     member.addFine(11.0f);
     member.payFine(1.0f);
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
-    thrown.expect(RuntimeException.class);
-    member.addFine (0.00f);
   }
 
 
@@ -182,31 +213,36 @@ public class MemberTest
   @Test
   public void testAddLoan ()
   {
-    cal = Calendar.getInstance();
-    currentDate = new Date();
-    cal.setTime(currentDate);
-    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    overDueDate = cal.getTime();
-	  loan = (ILoan) new Loan(null, member, null, null);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-      assertEquals(member.getLoans().get(0), loan);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-      assertEquals(member.getLoans().get(1), loan);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-      assertEquals(member.getLoans().get(2), loan);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
-      assertEquals(member.getLoans().get(3), loan);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
-      assertEquals(member.getLoans().get(4), loan);
-      thrown.expect(RuntimeException.class);
-      member.addLoan (loan);
-      assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
-      assertNotEquals(member.getLoans().get(5), loan);
+	// Test adding a loan
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    assertEquals(member.getLoans().get(0), loan);
+    
+    // Test adding a  second loan
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    assertEquals(member.getLoans().get(1), loan);
+    
+    // Test adding a third loan
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    assertEquals(member.getLoans().get(2), loan);
+    
+    // Test adding a fourth loan
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());
+    assertEquals(member.getLoans().get(3), loan);
+    
+    // Test adding a fifth loan
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    assertEquals(member.getLoans().get(4), loan);
+    
+    // Test adding a sixth loan, however maximum number of loans has been reached 
+    thrown.expect(RuntimeException.class);
+    member.addLoan (loan);
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+    assertNotEquals(member.getLoans().get(5), loan);
   }
 
 
@@ -223,11 +259,7 @@ public class MemberTest
   @Test
   public void testRemoveLoan ()
   {
-    cal = Calendar.getInstance();
-    currentDate = new Date();
-    cal.setTime(currentDate);
-    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    overDueDate = cal.getTime();
+	// Testing adding a loan and then removing then loan
     member.addLoan(loan);
     assertEquals(member.getLoans().get(0), loan);
     member.removeLoan(loan);
@@ -293,20 +325,14 @@ public class MemberTest
 	                                              contactNumber, email, 
 	                                              fineAmount});
 	assertEquals (expected, member.toString());
-	System.out.println(member.toString ());
   }
   
+ 
   
   @Test
-  public void testBorrowingAllowed()
+  public void testBorrowingAllowedOne()
   {
-    cal = Calendar.getInstance();
-    currentDate = new Date();
-    cal.setTime(currentDate);
-    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    overDueDate = cal.getTime();
-    // first test hasReachedLoanLimit is true
-    loan = (ILoan) new Loan(null, member, null, null);
+    // First test hasReachedLoanLimit is true
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -316,31 +342,50 @@ public class MemberTest
     member.addLoan (loan);
     assertTrue(member.hasReachedLoanLimit());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+  }
     
-    
-    // Second Test hasReachedFineLimit
+  
+  
+  @Test
+  public void testBorrowingAllowedTwo()
+  { 
+    // Second Test hasReachedFineLimit is true
     member.addFine(11.0f);
     assertTrue(member.hasReachedFineLimit());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+  }
     
+  
+  
+  @Test
+  public void testBorrowingAllowedThree()
+  {
+    // Third test hasOverDueLoans is true
+    ILoanHelper lh = new LoanHelper();
+    loanMap = new LoanMapDAO(lh);
+    loanMap.commitLoan(loan);
+    loanMap.updateOverDueStatus(overDueDate);
+    member.addLoan (loan);
+    assertTrue(member.hasOverDueLoans());
+    assertEquals(member.hasOverDueLoans(), loan.isOverDue());;
+    assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
+  }
     
-    // Third test hasOverDueLoans (Unable to test without Loan class implemented)
-    
-    // Fourth test borrowing allowed
+  
+  
+  @Test
+  public void testBorrowingAllowedFour()
+  {
+    // Fourth test borrowing allowed is true
     assertEquals(EMemberState.BORROWING_ALLOWED, member.getState());   
   }
   
   
+    
   @Test
   public void testUpdateState()
   {
-    cal = Calendar.getInstance();
-    currentDate = new Date();
-    cal.setTime(currentDate);
-    cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
-    overDueDate = cal.getTime();
-    // testing state borrowing disallowed.
-    loan = (ILoan) new Loan(null, member, null, null);
+    // Testing state borrowing disallowed using hasReachedLoanLimit.
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);
@@ -350,9 +395,10 @@ public class MemberTest
     member.addLoan (loan);
     assertTrue(member.hasReachedLoanLimit());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
-    
-    // testing state borrowing allowed
-    loan = (ILoan) new Loan(null, member, null, null);
+  }
+    public void testUpdateStateTwo()
+    {   
+    // Testing state borrowing allowed
     member.addLoan (loan);
     member.addLoan (loan);
     member.addLoan (loan);

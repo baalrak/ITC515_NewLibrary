@@ -13,6 +13,8 @@ public interface ILoan {
 	
 	public boolean isOverDue();
 	
+	public boolean isCurrent();
+	
 	public boolean checkOverDue(Date currentDate);
 	
 	public IMember getBorrower();

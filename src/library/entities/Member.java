@@ -201,6 +201,7 @@ public class Member implements IMember
     if (totalLoans.contains (loan))
     {
       totalLoans.remove (loan);
+      updateState();
     }
     else 
     {
