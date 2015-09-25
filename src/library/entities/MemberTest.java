@@ -1,12 +1,12 @@
 package library.entities;
 
 import static org.junit.Assert.*;
+
 import java.util.Calendar;
 import java.util.Date;
-import library.dao.LoanHelper;
-import library.dao.LoanMapDAO;
+
 import library.entities.Member;
-import library.interfaces.daos.ILoanHelper;
+import library.interfaces.daos.ILoanDAO;
 import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
@@ -17,11 +17,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
+import org.mockito.Mockito;
+
 
 public class MemberTest
 {
-  Mock mock;
   IMember member;
   ILoan loan;
   IBook book;
@@ -29,7 +29,7 @@ public class MemberTest
   Date dueByDate;
   Date overDueDate;
   Calendar cal;
-  LoanMapDAO loanMap;
+  ILoanDAO loanMap;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
@@ -47,7 +47,7 @@ public class MemberTest
   {
     cal = Calendar.getInstance ();
     member = new Member(iD, fName, lName, email, contactNumber);
-    book = new Book("JIM", "JAMES", "JJ", 003);
+    book = Mockito.mock(IBook.class);
     cal = Calendar.getInstance();
     currentDate = new Date();
     cal.setTime(currentDate);
@@ -56,7 +56,7 @@ public class MemberTest
     cal.setTime(currentDate);
     cal.add(Calendar.DATE, ILoan.LOAN_PERIOD*2);
     overDueDate = cal.getTime();
-    loan = new Loan(book, member, currentDate, dueByDate);
+    loan = Mockito.mock (ILoan.class);
   }
 
 
@@ -67,6 +67,7 @@ public class MemberTest
     member = null;
     loan = null;
     cal = null;
+    book = null;
   }
 
 
@@ -101,15 +102,17 @@ public class MemberTest
   public void testHasOverDueLoans ()
   {
 	// Member does not have overdue loans
+    Mockito.when(loan.isOverDue()).thenReturn (false);
 	member.addLoan(loan);
     assertFalse (member.hasOverDueLoans());
     assertEquals (member.hasOverDueLoans (),loan.isOverDue());
     
     // Member does have overdue loans
-    ILoanHelper lh = new LoanHelper();
-    loanMap = new LoanMapDAO(lh);
+    loanMap = Mockito.mock (ILoanDAO.class);
+    Mockito.when(loanMap.createLoan (member, book)).thenReturn (loan);
     loanMap.commitLoan(loan);
-    loanMap.updateOverDueStatus(overDueDate);
+    Mockito.when(loan.isOverDue()).thenReturn (true);
+    member.addLoan (loan);
     assertTrue(member.hasOverDueLoans());
     assertEquals(member.hasOverDueLoans(), loan.isOverDue());
   }
@@ -361,13 +364,12 @@ public class MemberTest
   public void testBorrowingAllowedThree()
   {
     // Third test hasOverDueLoans is true
-    ILoanHelper lh = new LoanHelper();
-    loanMap = new LoanMapDAO(lh);
-    loanMap.commitLoan(loan);
-    loanMap.updateOverDueStatus(overDueDate);
-    member.addLoan (loan);
+    member.addLoan(loan);
+    Mockito.when(loan.isOverDue()).thenReturn (true);
+    member.addLoan(loan);
+    System.out.println(member.getLoans ());
     assertTrue(member.hasOverDueLoans());
-    assertEquals(member.hasOverDueLoans(), loan.isOverDue());;
+    assertEquals(member.hasOverDueLoans(), loan.isOverDue());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
   }
     
@@ -396,6 +398,9 @@ public class MemberTest
     assertTrue(member.hasReachedLoanLimit());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());
   }
+  
+  
+  
     public void testUpdateStateTwo()
     {   
     // Testing state borrowing allowed

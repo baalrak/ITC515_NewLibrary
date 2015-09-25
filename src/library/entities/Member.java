@@ -1,11 +1,7 @@
 package library.entities;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-
 import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -21,7 +17,6 @@ public class Member implements IMember
   private EMemberState state;
   private List<ILoan> totalLoans;
   private float fineAmount;
-  private Date currentDate = new Date();
   private final int LOAN_LIMIT = 5;
   private final float FINE_LIMIT = 10.0f;
 

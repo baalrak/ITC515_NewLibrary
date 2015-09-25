@@ -1,13 +1,9 @@
 package library.dao;
 
 import static org.junit.Assert.*;
-
-import java.util.LinkedList;
-import java.util.Map;
-
-import library.entities.Member;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
+import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 
 import org.junit.After;
@@ -23,6 +19,7 @@ public class MemberMapDAOTest
   IMemberDAO map;
   IMemberDAO map2;
   MemberMapDAO test;
+  ILoan loan;
   private int    iD            = 101;
   private String fName         = "Jim";
   private String lName         = "Bob";
@@ -35,7 +32,6 @@ public class MemberMapDAOTest
     memberHelper = new MemberHelper();
     map = new MemberMapDAO(memberHelper);
     memberHelper.makeMember (fName, lName, contactNumber, email, iD);
-    
   }
 
 
@@ -56,8 +52,11 @@ public class MemberMapDAOTest
   @Test
   public void testMemberMapDAO ()
   {
+    // Test creation of a MemberMapDAO object
     map = new MemberMapDAO(memberHelper);
     assertNotNull(map);
+    
+    // Test the runtime error if null is passed when creating a MemberMapDAO object
     thrown.expect(RuntimeException.class);
     map2 = new MemberMapDAO(null);
   }
@@ -67,6 +66,7 @@ public class MemberMapDAOTest
   @Test
   public void testAddMember ()
   {
+    // Test adding a member.
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
   }
 
@@ -75,12 +75,17 @@ public class MemberMapDAOTest
   @Test
   public void testGetMemberByID ()
   {
+    // Test One getting member by ID first member
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.getMemberByID (1);
     assertNotNull(map.getMemberByID(1));
+    
+    // Test Two getting member by ID second member
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     map.getMemberByID (2);
     assertNotNull(map.getMemberByID(2));
+    
+    // Test Three getting member that does not exist
     thrown.expect (RuntimeException.class);
     map.getMemberByID (3);
   }
@@ -90,9 +95,10 @@ public class MemberMapDAOTest
   @Test
   public void testListMembers ()
   {
+    // Test listing members that have been added to MemberMapDAO
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    map.listMembers ();
+    assertNotNull(map.listMembers ());
   }
 
 
@@ -100,9 +106,11 @@ public class MemberMapDAOTest
   @Test
   public void testFindMembersByLastName ()
   {
+    String testMember = ("Ren" + " " + "Pampers" + " " + "223322335" + " " + "rp@wow.com");
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByLastName("Pampers"));
+    assertEquals(map.findMembersByLastName("Pampers"), member.toString ());
   }
 
 
