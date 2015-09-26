@@ -119,5 +119,74 @@ public class BorrowUC_CTLTest
      thrown.expect(RuntimeException.class);
      borrowCtl.cardSwiped (2);
   }
+  
+  
+  
+  
+  
+  
+  @Test
+  public void testSetStateInitialized()
+  {
+   borrowCtl.initialise ();
+   assertTrue(EBorrowState.INITIALIZED.equals(borrowCtl.getState()));
+  }
+  
+ 
+  
+  @Test
+  public void testSetStateScanningBooks()
+  {
+    borrowCtl.initialise ();
+    borrowCtl.cardSwiped (1);
+    assertTrue(EBorrowState.SCANNING_BOOKS.equals(borrowCtl.getState()));
+  }
+
+  
+  
+  @Test
+  public void testSetStateConfirmingLoans()
+  {
+    borrowCtl.scansCompleted ();
+    assertTrue(EBorrowState.CONFIRMING_LOANS.equals (borrowCtl.getState()));
+  }
+  
+  
+  
+  @Test
+  public void testSetStateCompleted()
+  {
+    borrowCtl.loansConfirmed ();
+    assertTrue(EBorrowState.COMPLETED.equals (borrowCtl.getState ()));
+  }
+  
+  
+  
+  @Test
+  public void testSetStateBorrowingRestricted()
+  {
+    book = new Book("Michael", "Hi There", "whatthe", 1);
+    loan = new Loan(book, memberDAO.getMemberByID (1), currentDate, dueByDate);
+    System.out.println(memberDAO.getMemberByID (1));
+    System.out.println(memberDAO.getMemberByID (1).getLoans ());
+    memberDAO.getMemberByID (1).addLoan (loan);
+    memberDAO.getMemberByID (1).addLoan (loan);
+    memberDAO.getMemberByID (1).addLoan (loan);
+    memberDAO.getMemberByID (1).addLoan (loan);
+    memberDAO.getMemberByID (1).addLoan (loan);
+    thrown.expect (RuntimeException.class);
+    memberDAO.getMemberByID (1).addLoan (loan);
+    assertTrue(EBorrowState.BORROWING_RESTRICTED.equals (borrowCtl.getState()));
+  }
+  
+  
+  
+  @Test
+  public void testSetStateCancelled()
+  {
+    borrowCtl.cancelled ();
+    assertTrue(EBorrowState.CANCELLED.equals(borrowCtl.getState()));
+  }
+
 
 }

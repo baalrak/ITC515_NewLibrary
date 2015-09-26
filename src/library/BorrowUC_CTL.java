@@ -69,7 +69,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	}
 	
 	public void close() {
-		display.setDisplay(previous, "Main Menu");
+		//display.setDisplay(previous, "Main Menu");
 	}
 
 	@Override
@@ -91,8 +91,8 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	    {
 	      setState(EBorrowState.BORROWING_RESTRICTED);
 	    }
-	    boolean hasFines = borrower.hasFinesPayable();
 	    setState(EBorrowState.SCANNING_BOOKS);
+	    boolean hasFines = borrower.hasFinesPayable();
 	    int borrowerID = borrower.getID();
 	    String borrowerName = (borrower.getFirstName() + " " + borrower.getLastName());
 	    String borrowerContact = borrower.getContactPhone();
@@ -152,20 +152,20 @@ public class BorrowUC_CTL implements ICardReaderListener,
       case CONFIRMING_LOANS:
           reader.setEnabled(false);
           scanner.setEnabled(false);
-          ui.displayConfirmingLoan(buildLoanListDisplay(loanList));
+          //ui.displayConfirmingLoan(buildLoanListDisplay(loanList));
           break;
 
       case COMPLETED:
           reader.setEnabled(false);
           scanner.setEnabled(false);
           ILoan loan;
-          for(iterator = loanList.iterator(); iterator.hasNext(); 
-              loanDAO.commitLoan(loan))
+          //for(iterator = loanList.iterator(); iterator.hasNext(); 
+          //    loanDAO.commitLoan(loan))
           {
-              loan = (ILoan) iterator.next();
+          //    loan = (ILoan) iterator.next();
           }
 
-          printer.print(buildLoanListDisplay(loanList));
+          //printer.print(buildLoanListDisplay(loanList));
           close();
           break;
 
@@ -191,22 +191,22 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cancelled() {
-		close();
+		setState(EBorrowState.CANCELLED);
 	}
 	
 	@Override
 	public void scansCompleted() {
-		throw new RuntimeException("Not implemented yet");
+		setState(EBorrowState.CONFIRMING_LOANS);
 	}
 
 	@Override
 	public void loansConfirmed() {
-		throw new RuntimeException("Not implemented yet");
+		setState(EBorrowState.COMPLETED);
 	}
 
 	@Override
 	public void loansRejected() {
-		throw new RuntimeException("Not implemented yet");
+	    setState(EBorrowState.SCANNING_BOOKS);
 	}
 
 	private String buildLoanListDisplay(List<ILoan> loans) {
@@ -216,6 +216,11 @@ public class BorrowUC_CTL implements ICardReaderListener,
 			bld.append(ln.toString());
 		}
 		return bld.toString();		
+	}
+	
+	public EBorrowState getState()
+	{
+	  return state;
 	}
 
 }
