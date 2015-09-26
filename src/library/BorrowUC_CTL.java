@@ -1,6 +1,7 @@
 package library;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -37,11 +38,11 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private IBookDAO bookDAO;
 	private IMemberDAO memberDAO;
 	private ILoanDAO loanDAO;
+	private Iterator iterator;
 	
 	private List<IBook> bookList;
 	private List<ILoan> loanList;
 	private IMember borrower;
-	
 	private JPanel previous;
 
 
@@ -51,12 +52,20 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 		this.display = display;
 		this.ui = new BorrowUC_UI(this);
+		this.reader = reader;
+		reader.addListener (this);
+		this.scanner = scanner;
+		scanner.addListener (this);
+		this.memberDAO = memberDAO;
+		this.loanDAO = loanDAO;
+		this.bookDAO = bookDAO;
 		state = EBorrowState.CREATED;
 	}
 	
 	public void initialise() {
-		previous = display.getDisplay();
-		display.setDisplay((JPanel) ui, "Borrow UI");		
+		//previous = display.getDisplay();
+		//display.setDisplay((JPanel) ui, "Borrow UI");
+		setState(EBorrowState.INITIALIZED);
 	}
 	
 	public void close() {
@@ -65,11 +74,9 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cardSwiped(int memberID) {
-	  System.out.println("cardSwiped: " + memberID);
 	    if(!state.equals(EBorrowState.INITIALIZED))
 	    {
-	      throw new RuntimeException("There was an error with the card swiped"
-	                                   + " in it's cur state: " + state);
+	      throw new RuntimeException("There was an error with the card swiped");
 	    }
 	    borrower = memberDAO.getMemberByID(memberID);
 	    if(borrower == null)
@@ -121,9 +128,66 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	}
 
 	
+	
 	private void setState(EBorrowState state) {
-		throw new RuntimeException("Not implemented yet");
-	}
+      this.state = state;
+      ui.setState(state);
+      switch(state)
+      {
+      case INITIALIZED:
+          reader.setEnabled(true);
+          scanner.setEnabled(false);
+          break;
+
+      case SCANNING_BOOKS:
+          reader.setEnabled(false);
+          scanner.setEnabled(true);
+          bookList = new ArrayList<IBook>();
+          loanList = new ArrayList<ILoan>();
+          scanCount = borrower.getLoans().size();
+          ui.displayScannedBookDetails("");
+          ui.displayPendingLoan("");
+          break;
+
+      case CONFIRMING_LOANS:
+          reader.setEnabled(false);
+          scanner.setEnabled(false);
+          ui.displayConfirmingLoan(buildLoanListDisplay(loanList));
+          break;
+
+      case COMPLETED:
+          reader.setEnabled(false);
+          scanner.setEnabled(false);
+          ILoan loan;
+          for(iterator = loanList.iterator(); iterator.hasNext(); 
+              loanDAO.commitLoan(loan))
+          {
+              loan = (ILoan) iterator.next();
+          }
+
+          printer.print(buildLoanListDisplay(loanList));
+          close();
+          break;
+
+      case CANCELLED:
+          reader.setEnabled(false);
+          scanner.setEnabled(false);
+          close();
+          break;
+
+      case BORROWING_RESTRICTED:
+          reader.setEnabled(false);
+          scanner.setEnabled(false);
+          ui.displayErrorMessage("Member ID: " + borrower.getID () + " Name: " 
+                                 + borrower.getFirstName() + " " 
+                                 + borrower.getLastName () + "is restricted "
+                                 + "from borrowing");
+          break;
+
+      default:
+          throw new RuntimeException("Invalid State");
+      }
+  }
 
 	@Override
 	public void cancelled() {

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import library.entities.Member;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IMember;
@@ -44,7 +45,7 @@ public class MemberMapDAO implements IMemberDAO
   {
     this.iD = getNextId();
     IMember newMember = memberHelper.makeMember (firstName, lastName,contactPhone,
-                                                 emailAddress, this.iD);
+                                                 emailAddress, iD);
     list.add (newMember.getID(), newMember);
     return newMember;
   }
@@ -55,14 +56,14 @@ public class MemberMapDAO implements IMemberDAO
   public IMember getMemberByID (int id)
   {
     if((IMember)list.get(id) == null)
-    {
-      throw new RuntimeException("That Member Does not exist!");
-    } 
+      {
+         throw new RuntimeException("That Member Does not exist!");
+      } 
     else
-    {
-      return (IMember)list.get(id);
-    }
-  }
+      {
+         return (IMember)list.get(id);
+      }
+}
 
   
   

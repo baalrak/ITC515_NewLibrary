@@ -30,7 +30,7 @@ public class MemberTest
   Date overDueDate;
   Calendar cal;
   ILoanDAO loanMap;
-  private int    iD            = 101;
+  private int    iD            = 1;
   private String fName         = "Jim";
   private String lName         = "Bob";
   private String email         = "jb@b.com";
