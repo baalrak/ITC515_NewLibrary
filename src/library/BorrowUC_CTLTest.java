@@ -16,6 +16,7 @@ import library.entities.Member;
 import library.entities.Book;
 import library.hardware.CardReader;
 import library.hardware.Scanner;
+import library.interfaces.EBorrowState;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.IBookHelper;
 import library.interfaces.daos.ILoanDAO;
@@ -32,7 +33,9 @@ import library.interfaces.hardware.IScanner;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class BorrowUC_CTLTest
 {
@@ -59,6 +62,13 @@ public class BorrowUC_CTLTest
   Date overDueDate;
   Calendar cal;
 
+  
+  
+  @Rule
+  public ExpectedException thrown= ExpectedException.none();
+  
+  
+  
   @Before
   public void setUp () throws Exception
   {
@@ -96,8 +106,18 @@ public class BorrowUC_CTLTest
   @Test
   public void testcardSwiped ()
   {
+    // Test swiped card is valid
     borrowCtl.initialise ();
     borrowCtl.cardSwiped (1);
+  }
+  
+  @Test
+  public void testCardSwipedError()
+  {
+     //Test swiped card is not valid
+     borrowCtl.initialise ();
+     thrown.expect(RuntimeException.class);
+     borrowCtl.cardSwiped (2);
   }
 
 }

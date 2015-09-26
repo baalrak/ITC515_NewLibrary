@@ -42,7 +42,7 @@ public class MemberMapDAOTest
   
   
   @Rule
-  public ExpectedException thrown= ExpectedException.none();
+  public ExpectedException thrown = ExpectedException.none();
 
   
   
@@ -72,17 +72,23 @@ public class MemberMapDAOTest
   @Test
   public void testGetMemberByID ()
   {
-    // Test One getting member by ID first member
+    // Test getting member by ID - first member
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.getMemberByID (1);
     assertNotNull(map.getMemberByID(1));
     
-    // Test Two getting member by ID second member
+    // Test getting member by ID - second member
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     map.getMemberByID (2);
     assertNotNull(map.getMemberByID(2));
-    
-    // Test Three getting member that does not exist
+  }
+  
+  
+  
+  @Test
+  public void testGerMemberByIDError()
+  {
+    // Test getting member that does not exist
     thrown.expect (RuntimeException.class);
     map.getMemberByID (3);
   }
