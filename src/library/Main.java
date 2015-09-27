@@ -1,5 +1,12 @@
 package library;
 
+import library.dao.BookHelper;
+import library.dao.BookMapDAO;
+import library.dao.LoanHelper;
+import library.dao.LoanMapDAO;
+import library.dao.MemberHelper;
+import library.dao.MemberMapDAO;
+import library.entities.Member;
 import library.hardware.CardReader;
 import library.hardware.Display;
 import library.hardware.Printer;
@@ -26,14 +33,15 @@ public class Main implements IMainListener {
 	private IBookDAO bookDAO;
 	private ILoanDAO loanDAO;
 	private IMemberDAO memberDAO;
-	
 	public Main() {
 		reader = new CardReader();
 		scanner = new Scanner();
 		printer = new Printer();
 		display = new Display();
-		
-		//setupTestData();
+		bookDAO = new BookMapDAO(new BookHelper());
+        loanDAO = new LoanMapDAO(new LoanHelper());
+        memberDAO = new MemberMapDAO(new MemberHelper());
+		setupTestData();
 	}
 
 
@@ -48,7 +56,7 @@ public class Main implements IMainListener {
 	@Override
 	public void borrowBooks() {
 		BorrowUC_CTL ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
-				 null, null, null);
+				 bookDAO, loanDAO, memberDAO);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	ctl.initialise();
@@ -59,8 +67,7 @@ public class Main implements IMainListener {
 	
 	private void setupTestData() {
         IBook[] book = new IBook[15];
-		IMember[] member = new IMember[6];
-		
+        IMember member[] = new IMember[6];
 		book[0]  = bookDAO.addBook("author1", "title1", "callNo1");
 		book[1]  = bookDAO.addBook("author1", "title2", "callNo2");
 		book[2]  = bookDAO.addBook("author1", "title3", "callNo3");
@@ -76,14 +83,13 @@ public class Main implements IMainListener {
 		book[12] = bookDAO.addBook("author5", "title13", "callNo13");
 		book[13] = bookDAO.addBook("author5", "title14", "callNo14");
 		book[14] = bookDAO.addBook("author5", "title15", "callNo15");
-		
 		member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
 		member[1] = memberDAO.addMember("fName1", "lName1", "0002", "email1");
 		member[2] = memberDAO.addMember("fName2", "lName2", "0003", "email2");
 		member[3] = memberDAO.addMember("fName3", "lName3", "0004", "email3");
 		member[4] = memberDAO.addMember("fName4", "lName4", "0005", "email4");
 		member[5] = memberDAO.addMember("fName5", "lName5", "0006", "email5");
-		
+        System.out.println(memberDAO.getMemberByID (1));
 		Calendar cal = Calendar.getInstance();
 		Date now = cal.getTime();
 				
@@ -126,7 +132,8 @@ public class Main implements IMainListener {
             	main.display.setDisplay(new MainPanel(main), "Main Menu");
                 main.showGUI();
             }
-        });
+        }
+        );
 	}
 
 	

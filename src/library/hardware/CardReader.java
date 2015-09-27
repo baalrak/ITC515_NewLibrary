@@ -74,7 +74,7 @@ public class CardReader extends JFrame implements ICardReader {
 				}
 				catch (NumberFormatException e) {
 					//e.printStackTrace(System.err);
-					lblErrorMesg.setText("Member Id must be a positive intger");
+					lblErrorMesg.setText("Member Id must be a positive integer");
 				}
 				textField.setText("");
 			}

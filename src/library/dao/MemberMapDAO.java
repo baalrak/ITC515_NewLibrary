@@ -56,11 +56,11 @@ public class MemberMapDAO implements IMemberDAO
   public IMember getMemberByID (int id)
   {
     if (Integer.toString(id) == null || Integer.toString (id).isEmpty () 
-        || id < list.size() -1 || id > list.size () -1)
+        || id < 0 || id > list.size () - 1 )
     {
       throw new RuntimeException("Please enter a valid Member ID!");
     }
-    else if((IMember)list.get(id) == null)
+    else if(list.get(id) == null)
     {
       throw new RuntimeException("That Member Does not exist!");
     } 
