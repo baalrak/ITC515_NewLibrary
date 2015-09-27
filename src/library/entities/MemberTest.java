@@ -366,8 +366,7 @@ public class MemberTest
     // Third test hasOverDueLoans is true
     member.addLoan(loan);
     Mockito.when(loan.isOverDue()).thenReturn (true);
-    member.addLoan(loan);
-    System.out.println(member.getLoans ());
+    member.addLoan(loan);;
     assertTrue(member.hasOverDueLoans());
     assertEquals(member.hasOverDueLoans(), loan.isOverDue());
     assertEquals(EMemberState.BORROWING_DISALLOWED, member.getState());

@@ -37,6 +37,7 @@ public class MemberMapDAOTest
   public void tearDown () throws Exception
   {
     memberHelper = null;
+    map = null;
   }
   
   
@@ -76,17 +77,21 @@ public class MemberMapDAOTest
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.getMemberByID (1);
     assertNotNull(map.getMemberByID(1));
+    System.out.println("GetMemberByID(1st Member): \n" 
+        + map.getMemberByID(1) + "\n");
     
     // Test getting member by ID - second member
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     map.getMemberByID (2);
     assertNotNull(map.getMemberByID(2));
+    System.out.println("GetMemberByID(2nd Member): \n" 
+                       + map.getMemberByID(2) + "\n");
   }
   
   
   
   @Test
-  public void testGerMemberByIDError()
+  public void testGetMemberByIDError()
   {
     // Test getting member that does not exist
     thrown.expect (RuntimeException.class);
@@ -102,6 +107,7 @@ public class MemberMapDAOTest
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.listMembers ());
+    System.out.println("ListMembers: \n" + map.listMembers() + "\n");
   }
 
 
@@ -111,7 +117,9 @@ public class MemberMapDAOTest
   {
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    assertNotNull(map.findMembersByLastName("Pampers"));
+    assertNotNull(map.findMembersByLastName("Janson"));
+    System.out.println("MemberByLastName: \n" 
+        + map.findMembersByLastName ("Janson")+"\n");
   }
 
 
@@ -122,6 +130,8 @@ public class MemberMapDAOTest
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByEmailAddress("rp@wow.com"));
+    System.out.println("MemberByEmail: \n" 
+                       + map.findMembersByEmailAddress ("rp@wow.com")+"\n");
   }
 
 
@@ -132,6 +142,8 @@ public class MemberMapDAOTest
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByNames("Ren", "Pampers"));
+    System.out.println("MemberByNames: \n" 
+                       + map.findMembersByNames ("Ren", "Pampers") + "\n");
   }
 
 }

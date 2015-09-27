@@ -89,7 +89,6 @@ public class Main implements IMainListener {
 		member[3] = memberDAO.addMember("fName3", "lName3", "0004", "email3");
 		member[4] = memberDAO.addMember("fName4", "lName4", "0005", "email4");
 		member[5] = memberDAO.addMember("fName5", "lName5", "0006", "email5");
-        System.out.println(memberDAO.getMemberByID (1));
 		Calendar cal = Calendar.getInstance();
 		Date now = cal.getTime();
 				
