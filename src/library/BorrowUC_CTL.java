@@ -145,23 +145,19 @@ public class BorrowUC_CTL implements ICardReaderListener,
       ui.displayErrorMessage("Book: " + barcode + " not found");
       return;
     }
-    System.out.println("I am throwing an error");
     if(book.getState() != EBookState.AVAILABLE)
     {
-      System.out.println("I am throwing an error 2");
       ui.displayErrorMessage("Book: " + book.getID() + " is currently " 
                              +book.getState());
       return;
     }
     if(bookList.contains(book))
     {
-      System.out.println("I am throwing an error 3");
       ui.displayErrorMessage("Book: " + book.getID() + " is already scanned");
       return;
     }
     scanCount++;
     bookList.add(book);
-    System.out.println("I am throwing an error 4");
     ILoan loan = loanDAO.createLoan(borrower, book);
     loanList.add(loan);
     ui.displayScannedBookDetails(book.toString());
