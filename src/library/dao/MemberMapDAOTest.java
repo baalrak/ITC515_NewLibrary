@@ -53,6 +53,7 @@ public class MemberMapDAOTest
     // Test creation of a MemberMapDAO object
     map = new MemberMapDAO(memberHelper);
     assertNotNull(map);
+    assertTrue(map instanceof MemberMapDAO);
     
     // Test the runtime error if null is passed when creating a MemberMapDAO object
     thrown.expect(RuntimeException.class);

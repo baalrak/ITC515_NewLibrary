@@ -76,6 +76,7 @@ public class MemberTest
   public void testMember ()
   {
     assertNotNull (member);
+    assertTrue(member instanceof Member);
   }
   
   @Test
@@ -105,7 +106,7 @@ public class MemberTest
     Mockito.when(loan.isOverDue()).thenReturn (false);
 	member.addLoan(loan);
     assertFalse (member.hasOverDueLoans());
-    assertEquals (member.hasOverDueLoans (),loan.isOverDue());
+    assertEquals (member.hasOverDueLoans (),loan.isOverDue()); 
     
     // Member does have overdue loans
     loanMap = Mockito.mock (ILoanDAO.class);

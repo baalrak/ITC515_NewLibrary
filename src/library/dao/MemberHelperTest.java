@@ -41,6 +41,7 @@ public class MemberHelperTest
     IMember test = memberHelper.makeMember (fName, lName, contactNumber, email, 
         iD);
    assertEquals (test.toString (), member.toString ());
+   assertTrue (memberHelper instanceof MemberHelper);
   }
 
 }
