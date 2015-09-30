@@ -68,6 +68,26 @@ public class BorrowUC_CTL implements ICardReaderListener,
     this.printer = printer;
     scanCount = 0;
   }
+  
+  
+  
+  public BorrowUC_CTL(ICardReader reader, IScanner scanner, 
+      IPrinter printer, IDisplay display,
+      IBookDAO bookDAO, ILoanDAO loanDAO, IMemberDAO memberDAO, IBorrowUI ui ){
+
+    this.display = display;
+    this.ui = ui;
+    this.reader = reader;
+    reader.addListener (this);
+    this.scanner = scanner;
+    scanner.addListener (this);
+    this.memberDAO = memberDAO;
+    this.loanDAO = loanDAO;
+    this.bookDAO = bookDAO;
+    state = EBorrowState.CREATED;
+    this.printer = printer;
+    scanCount = 0;
+  }
 
   
   

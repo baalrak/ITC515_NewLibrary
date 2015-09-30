@@ -29,6 +29,7 @@ import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.ILoanHelper;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
+import library.interfaces.entities.EBookState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -36,6 +37,7 @@ import library.interfaces.hardware.ICardReader;
 import library.interfaces.hardware.IDisplay;
 import library.interfaces.hardware.IPrinter;
 import library.interfaces.hardware.IScanner;
+import library.panels.borrow.ABorrowPanel;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +58,7 @@ public class BorrowUC_CTLIntegrationTest
   ILoanDAO loanDAO;
   ILoanHelper loanHelper;
   ICardReader cardReader;
-  IBorrowUI ui;
+  ABorrowPanel ui;
   IBorrowUIListener listener;
   IScanner scanner;
   IPrinter printer;
@@ -98,13 +100,13 @@ public class BorrowUC_CTLIntegrationTest
     book = bookDAO.addBook ("Banjo Paterson", "Monster", "003333");
     loanHelper = new LoanHelper();
     loanDAO = new LoanMapDAO(loanHelper); 
-    scanner = new Scanner();
-    cardReader = new CardReader();
-    borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
-                                 loanDAO, memberDAO);
-    ui = Mockito.mock (IBorrowUI.class);
+    scanner = Mockito.mock (IScanner.class);
+    cardReader = Mockito.mock (ICardReader.class);
+    ui = Mockito.mock (ABorrowPanel.class);
     display = Mockito.mock (IDisplay.class);
-    //Mockito.when(ui.
+    borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
+                                 loanDAO, memberDAO, ui);
+    
   }
 
 
@@ -112,6 +114,22 @@ public class BorrowUC_CTLIntegrationTest
   @After
   public void tearDown () throws Exception
   {
+    cal = null;
+    currentDate = null;
+    dueByDate = null;
+    overDueDate = null;
+    memHelper = null;
+    memberDAO = null;
+    bookHelper = null;
+    bookDAO = null;
+    book = null;
+    loanHelper = null;
+    loanDAO = null;
+    scanner = null;
+    cardReader = null;
+    ui = null;
+    display = null;
+    borrowCtl = null;
   }
 
   
@@ -119,63 +137,94 @@ public class BorrowUC_CTLIntegrationTest
   @Test
   public void testBorrowUseCaseControllerUI()
   {
+    borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
+                                 loanDAO, memberDAO, ui);
     assertTrue(borrowCtl instanceof BorrowUC_CTL);
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.CREATED));
+    assertNotNull(borrowCtl);
   }
 
+  
+  
+  @Test
+  public void testInitialise()
+  {
+    //Test that then state does in fact transition into Initialized
+    borrowCtl.initialise ();
+    assertTrue(EBorrowState.INITIALIZED.equals(borrowCtl.getState()));
+  }
 
+  
+  
   @Test
   public void testcardSwiped ()
   {
     // Test swiped card is valid
-    Mockito.when (display.getDisplay ()).thenReturn (null);
-    Mockito.doNothing ();
-    display.setDisplay (null, null);
+    Mockito.when(display.getDisplay()).thenReturn (null);
     borrowCtl.initialise();
+    assertTrue (borrowCtl.getState ().equals (EBorrowState.INITIALIZED));
     borrowCtl.cardSwiped (1);
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.SCANNING_BOOKS));
   }
+  
+  
   
   @Test
   public void testCardSwipedError()
   {
      //Test swiped card is not valid
-     //thrown.expect (NullPointerException.class);
-     // borrowCtl.initialise ();
-     borrowCtl.setState (EBorrowState.INITIALIZED);
+     Mockito.when(display.getDisplay()).thenReturn (null);
+     borrowCtl.initialise();
+     assertTrue (borrowCtl.getState ().equals (EBorrowState.INITIALIZED));
      thrown.expect(RuntimeException.class);
      borrowCtl.cardSwiped (2);
+     assertFalse(borrowCtl.getState().equals (EBorrowState.SCANNING_BOOKS));
   }
   
-
+  
   
   @Test
-  public void testSetStateInitialized()
+  public void testCardSwipedBorrowingRestricted()
   {
-    //Test that then state does in fact transition into Initialized
-    thrown.expect (NullPointerException.class);
-    borrowCtl.initialise ();
-    assertTrue(EBorrowState.INITIALIZED.equals(borrowCtl.getState()));
-  }
-  
- 
-  
-  @Test
-  public void testSetStateScanningBooks()
-  {
-    //Test that then state does in fact transition into Scanning books.
-    borrowCtl.setState (EBorrowState.INITIALIZED);
+     //Test swiped card is valid but member is restricted
+    Mockito.when (member.hasReachedFineLimit ()).thenReturn (true);
+    Mockito.when(display.getDisplay()).thenReturn (null);
+    borrowCtl.initialise();
+    assertTrue (borrowCtl.getState ().equals (EBorrowState.INITIALIZED));
     borrowCtl.cardSwiped (1);
-    assertTrue(EBorrowState.SCANNING_BOOKS.equals(borrowCtl.getState()));
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.BORROWING_RESTRICTED));
+  }
+  
+   
+  
+  @Test
+  public void testBookScanned()
+  {
+    //Test that booked scanned method.
+    Mockito.when(display.getDisplay()).thenReturn (null);
+    borrowCtl.initialise();
+    assertTrue (borrowCtl.getState ().equals (EBorrowState.INITIALIZED));
+    borrowCtl.cardSwiped (1);
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.SCANNING_BOOKS));
+    borrowCtl.bookScanned (1);
+    assertTrue(book.getState ().equals (EBookState.AVAILABLE));
+    assertTrue(borrowCtl.getState ().equals(EBorrowState.CONFIRMING_LOANS));
   }
 
   
   
   @Test
-  public void testSetStateConfirmingLoans()
+  public void testBookScannedErrorBookNotFound()
   {
-    //Test that then state does in fact transition into Confirming loans.
-    thrown.expect (NullPointerException.class);
-    borrowCtl.scansCompleted ();
-    assertTrue(EBorrowState.CONFIRMING_LOANS.equals (borrowCtl.getState()));
+    //Test that booked scanned method.
+    Mockito.when(display.getDisplay()).thenReturn (null);
+    borrowCtl.initialise();
+    assertTrue (borrowCtl.getState ().equals (EBorrowState.INITIALIZED));
+    borrowCtl.cardSwiped (1);
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.SCANNING_BOOKS));
+    borrowCtl.bookScanned (0);
+    assertFalse(book.getState ().equals (EBookState.AVAILABLE));
+    assertTrue(borrowCtl.getState ().equals (EBorrowState.SCANNING_BOOKS));
   }
   
   
@@ -222,7 +271,7 @@ public class BorrowUC_CTLIntegrationTest
   
   
   
-  @Test
+  /*@Test
   public void testBookScanned()
   {
     //Test that the method book scanned works
@@ -231,7 +280,7 @@ public class BorrowUC_CTLIntegrationTest
     int barcode = 1;
     borrowCtl.bookScanned (barcode);
     assertTrue(EBorrowState.CONFIRMING_LOANS.equals (borrowCtl.getState()));
-  }
+  }*/
   
   
   
