@@ -160,8 +160,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
     ui.displayErrorMessage("");
     IBook book = bookDAO.getBookByID(barcode);
     if(book == null)
-    {
-      
+    { 
       ui.displayErrorMessage("Book: " + barcode + " not found");
       return;
     }
@@ -182,7 +181,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
     loanList.add(loan);
     ui.displayScannedBookDetails(book.toString());
     ui.displayPendingLoan(buildLoanListDisplay(loanList));
-    if(scanCount >= LOAN_LIMIT);
+    if(scanCount >= LOAN_LIMIT)
     {
       setState(EBorrowState.CONFIRMING_LOANS);
     }
