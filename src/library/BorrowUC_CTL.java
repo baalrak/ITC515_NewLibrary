@@ -170,7 +170,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 
 
-  public void setState(EBorrowState state) {
+  private void setState(EBorrowState state) {
     this.state = state;
     ui.setState(state);
     switch(state)

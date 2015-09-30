@@ -1,11 +1,14 @@
 package library.unit.tests;
 
 import static org.junit.Assert.*;
+
+
+import library.dao.MemberMapDAO;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IMember;
-import org.mockito.Mockito;
 
+import org.mockito.Mockito;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -15,23 +18,24 @@ import org.junit.rules.ExpectedException;
 public class MemberMapDAOUnitTest
 {
   
-  IMember member; // make mocks
-  IMemberHelper memberHelper;  // make mocks
-  IMemberDAO map;  //make mocks
-  IMemberDAO map2;  //make mocks
-  private int    iD            = 101;
+  IMember member;
+  IMemberHelper memberHelper;
+  IMemberDAO map;
+  IMemberDAO map2;
+  private int    iD            = 1;
   private String fName         = "Jim";
   private String lName         = "Bob";
   private String email         = "jb@b.com";
   private String contactNumber = "02222222";
+  
   
   @Before
   public void setUp () throws Exception
   {
     memberHelper = Mockito.mock (IMemberHelper.class);
     map = Mockito.mock(IMemberDAO.class);
-    map = new (memberHelper);  //mocks
-    memberHelper.makeMember (fName, lName, contactNumber, email, iD);  //mocks
+    map = new MemberMapDAO(memberHelper);
+    member = Mockito.mock (IMember.class);
   }
 
 
@@ -54,7 +58,6 @@ public class MemberMapDAOUnitTest
   public void testMemberMapDAO ()
   {
     // Test creation of a MemberMapDAO object
-    map = new MemberMapDAO(memberHelper);
     assertNotNull(map);
     assertTrue(map instanceof MemberMapDAO);
   }
@@ -75,7 +78,15 @@ public class MemberMapDAOUnitTest
   public void testAddMember ()
   {
     // Test adding a member.
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
+    Mockito.when (memberHelper.makeMember (Mockito.eq(fName), Mockito.eq(lName), 
+                                           Mockito.eq(contactNumber), 
+                                           Mockito.eq(email), Mockito.eq (iD)))
+                                           .thenReturn (member);
+    IMember actualMember = map.addMember (fName, lName, contactNumber, email);
+    Mockito.verify(memberHelper).makeMember (Mockito.eq(fName), Mockito.eq(lName), 
+                                             Mockito.eq(contactNumber), 
+                                             Mockito.eq(email), Mockito.eq (iD));
+    assertEquals(actualMember, member);
   }
 
 
@@ -83,25 +94,21 @@ public class MemberMapDAOUnitTest
   @Test
   public void testGetMemberByID ()
   {
-    // Test getting member by ID - first member
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
-    map.getMemberByID (1);
-    assertNotNull(map.getMemberByID(1));
-    System.out.println("GetMemberByID(1st Member): \n" 
-        + map.getMemberByID(1) + "\n");
-    
-    // Test getting member by ID - second member
-    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    map.getMemberByID (2);
-    assertNotNull(map.getMemberByID(2));
-    System.out.println("GetMemberByID(2nd Member): \n" 
-                       + map.getMemberByID(2) + "\n");
+    // Test getting member by ID
+    IMember member = Mockito.mock(IMember.class);
+    Mockito.when(memberHelper.makeMember(Mockito.anyString(), Mockito.anyString(), 
+                                         Mockito.anyString(), Mockito.anyString(), 
+                                         Mockito.anyInt())).thenReturn(member);
+    map.addMember(fName,lName,contactNumber,email);
+    IMember actualMember = map.getMemberByID(0);
+    assertEquals(member,actualMember);
+    assertNotNull(map.getMemberByID(0));
   }
   
   
   
   @Test
-  public void testGetMemberByIDError()
+  public void testGetMemberByIDMemberDoesNotExist()
   {
     // Test getting member that does not exist
     thrown.expect (RuntimeException.class);
@@ -113,11 +120,13 @@ public class MemberMapDAOUnitTest
   @Test
   public void testListMembers ()
   {
-    // Test listing members that have been added to MemberMapDAO
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
-    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    assertNotNull(map.listMembers ());
-    System.out.println("ListMembers: \n" + map.listMembers() + "\n");
+    // Test that a list of members is returned
+    IMember member = Mockito.mock(IMember.class);
+    Mockito.when(memberHelper.makeMember(Mockito.anyString(), Mockito.anyString(), 
+                                         Mockito.anyString(), Mockito.anyString(), 
+                                         Mockito.anyInt())).thenReturn(member);
+    map.addMember(fName,lName,contactNumber,email);
+    assertNotNull(map.listMembers());
   }
 
 
@@ -125,11 +134,23 @@ public class MemberMapDAOUnitTest
   @Test
   public void testFindMembersByLastName ()
   {
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
-    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    assertNotNull(map.findMembersByLastName("Janson"));
-    System.out.println("MemberByLastName: \n" 
-        + map.findMembersByLastName ("Janson")+"\n");
+    // Test that a member is returned when searching by last name
+    IMember member = Mockito.mock(IMember.class);
+    Mockito.when (member.getLastName ()).thenReturn (lName);
+    Mockito.when (member.getFirstName ()).thenReturn (fName);
+    Mockito.when (member.getContactPhone ()).thenReturn (contactNumber);
+    Mockito.when (member.getEmailAddress ()).thenReturn (email);
+    Mockito.when (member.getID ()).thenReturn (iD);
+    Mockito.when (memberHelper.makeMember(Mockito.eq(fName), Mockito.eq(lName), 
+                                          Mockito.eq(contactNumber), 
+                                          Mockito.eq(email), Mockito.eq (iD)))
+                                          .thenReturn (member);
+    map = new MemberMapDAO(memberHelper);
+    map.addMember(fName,lName,contactNumber,email);
+    Mockito.verify(memberHelper).makeMember (Mockito.eq(fName), Mockito.eq(lName), 
+                                             Mockito.eq(contactNumber), 
+                                             Mockito.eq(email), Mockito.eq (iD));
+    assertNotNull(map.findMembersByLastName(lName));
   }
 
 
@@ -137,11 +158,23 @@ public class MemberMapDAOUnitTest
   @Test
   public void testFindMembersByEmailAddress ()
   {
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
-    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    assertNotNull(map.findMembersByEmailAddress("rp@wow.com"));
-    System.out.println("MemberByEmail: \n" 
-                       + map.findMembersByEmailAddress ("rp@wow.com")+"\n");
+    // Test that a member is returned when searching by email address
+    IMember member = Mockito.mock(IMember.class);
+    Mockito.when (member.getLastName ()).thenReturn (lName);
+    Mockito.when (member.getFirstName ()).thenReturn (fName);
+    Mockito.when (member.getContactPhone ()).thenReturn (contactNumber);
+    Mockito.when (member.getEmailAddress ()).thenReturn (email);
+    Mockito.when (member.getID ()).thenReturn (iD);
+    Mockito.when (memberHelper.makeMember(Mockito.eq(fName), Mockito.eq(lName), 
+                                          Mockito.eq(contactNumber), 
+                                          Mockito.eq(email), Mockito.eq (iD)))
+                                          .thenReturn (member);
+    map = new MemberMapDAO(memberHelper);
+    map.addMember(fName,lName,contactNumber,email);
+    Mockito.verify(memberHelper).makeMember (Mockito.eq(fName), Mockito.eq(lName), 
+                                             Mockito.eq(contactNumber), 
+                                             Mockito.eq(email), Mockito.eq (iD));
+    assertNotNull(map.findMembersByEmailAddress(email));
   }
 
 
@@ -149,12 +182,23 @@ public class MemberMapDAOUnitTest
   @Test
   public void testFindMembersByNames ()
   {
-    map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
-    map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
-    assertNotNull(map.findMembersByNames("Ren", "Pampers"));
-    System.out.println("MemberByNames: \n" 
-                       + map.findMembersByNames ("Ren", "Pampers") + "\n");
+    // Test that a member is returned when searching by both first and last names
+    IMember member = Mockito.mock(IMember.class);
+    Mockito.when (member.getLastName ()).thenReturn (lName);
+    Mockito.when (member.getFirstName ()).thenReturn (fName);
+    Mockito.when (member.getContactPhone ()).thenReturn (contactNumber);
+    Mockito.when (member.getEmailAddress ()).thenReturn (email);
+    Mockito.when (member.getID ()).thenReturn (iD);
+    Mockito.when (memberHelper.makeMember(Mockito.eq(fName), Mockito.eq(lName), 
+                                          Mockito.eq(contactNumber), 
+                                          Mockito.eq(email), Mockito.eq (iD)))
+                                          .thenReturn (member);
+    map = new MemberMapDAO(memberHelper);
+    map.addMember(fName,lName,contactNumber,email);
+    Mockito.verify(memberHelper).makeMember (Mockito.eq(fName), Mockito.eq(lName), 
+                                             Mockito.eq(contactNumber), 
+                                             Mockito.eq(email), Mockito.eq (iD));
+    assertNotNull(map.findMembersByNames(lName, fName));
   }
-
 }
 

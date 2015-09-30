@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.swing.JPanel;
+
 import library.BorrowUC_CTL;
 import library.BorrowUC_UI;
 import library.dao.BookHelper;
@@ -40,6 +42,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 public class BorrowUC_CTLIntegrationTest
 {
@@ -74,12 +77,6 @@ public class BorrowUC_CTLIntegrationTest
   public ExpectedException thrown= ExpectedException.none();
   
   
-  /*              ========MAJOR NOTE==========
-   * Had to add thrown.expect (NullPointerException.class);
-   * to most classes as the calls to the panels was making the
-   * tests fail. That is why this is implemented here.
-   */  
-  
   
   @Before
   public void setUp () throws Exception
@@ -105,7 +102,9 @@ public class BorrowUC_CTLIntegrationTest
     cardReader = new CardReader();
     borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
                                  loanDAO, memberDAO);
-    ui = new BorrowUC_UI(listener);
+    ui = Mockito.mock (IBorrowUI.class);
+    display = Mockito.mock (IDisplay.class);
+    //Mockito.when(ui.
   }
 
 
@@ -128,7 +127,10 @@ public class BorrowUC_CTLIntegrationTest
   public void testcardSwiped ()
   {
     // Test swiped card is valid
-    borrowCtl.setState (EBorrowState.INITIALIZED);
+    Mockito.when (display.getDisplay ()).thenReturn (null);
+    Mockito.doNothing ();
+    display.setDisplay (null, null);
+    borrowCtl.initialise();
     borrowCtl.cardSwiped (1);
   }
   
