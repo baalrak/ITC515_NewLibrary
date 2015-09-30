@@ -100,14 +100,19 @@ public class MemberUnitTest
   
 
   @Test
-  public void testHasOverDueLoans ()
+  public void testHasOverDueLoansFalse ()
   {
 	// Member does not have overdue loans
     Mockito.when(loan.isOverDue()).thenReturn (false);
 	member.addLoan(loan);
     assertFalse (member.hasOverDueLoans());
     assertEquals (member.hasOverDueLoans (),loan.isOverDue()); 
-    
+  }
+  
+  
+  
+  public void testHasOverDueLoansTrue ()
+  {
     // Member does have overdue loans
     loanMap = Mockito.mock (ILoanDAO.class);
     Mockito.when(loanMap.createLoan (member, book)).thenReturn (loan);
@@ -121,11 +126,16 @@ public class MemberUnitTest
 
 
   @Test
-  public void testHasReachedLoanLimit ()
+  public void testHasReachedLoanLimitFalse ()
   {
     // Testing loan limit not reached
     assertFalse (member.hasReachedLoanLimit());
-    
+  }
+  
+  
+  
+  public void testHasReachedLoanLimitTrue ()
+  {
     // Testing loan limit reached
     member.addLoan (loan);
     member.addLoan (loan);
