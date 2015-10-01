@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import library.dao.MemberHelper;
-import library.dao.MemberMapDAO;
-import library.entities.Member;
 import library.interfaces.EBorrowState;
 import library.interfaces.IBorrowUI;
 import library.interfaces.IBorrowUIListener;
@@ -17,6 +14,7 @@ import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.EBookState;
+import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -117,11 +115,12 @@ public class BorrowUC_CTL implements ICardReaderListener,
       ui.displayErrorMessage("Member " + memberID + " cannot be found");
       return;
     }
-    if (borrower.getState().equals(EBorrowState.BORROWING_RESTRICTED))
+    System.out.println(borrower.getState() + "2");
+    setState(EBorrowState.SCANNING_BOOKS);
+    if (!borrower.getState().equals (EMemberState.BORROWING_ALLOWED))
     {
       setState(EBorrowState.BORROWING_RESTRICTED);
     }
-    setState(EBorrowState.SCANNING_BOOKS);
     boolean hasFines = borrower.hasFinesPayable();
     int borrowerID = borrower.getID();
     String borrowerName = (borrower.getFirstName() + " " + borrower.getLastName());
