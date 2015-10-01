@@ -2,11 +2,8 @@ package library.integration.tests;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-
 import library.dao.MemberHelper;
 import library.dao.MemberMapDAO;
-import library.entities.Member;
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IMember;
@@ -28,7 +25,6 @@ public class MemberMapDAOIntegrationTest
   private String lName         = "Bob";
   private String email         = "jb@b.com";
   private String contactNumber = "02222222";
-  private float fineAmount     = 0.0f;
   
   @Before
   public void setUp () throws Exception
@@ -129,7 +125,7 @@ public class MemberMapDAOIntegrationTest
   @Test
   public void testFindMembersByLastName ()
   {
-    Member testMember = new Member(1, "Bob", "Janson", "55544411", "bj@bj.com");
+	// Test finding members that have been added to MemberMapDAO by last name
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByLastName("Janson"));
@@ -142,6 +138,7 @@ public class MemberMapDAOIntegrationTest
   @Test
   public void testFindMembersByEmailAddress ()
   {
+	// Test finding members that have been added to MemberMapDAO by email
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByEmailAddress("rp@wow.com"));
@@ -154,6 +151,7 @@ public class MemberMapDAOIntegrationTest
   @Test
   public void testFindMembersByNames ()
   {
+	// Test finding members that have been added to MemberMapDAO by first and last name
     map.addMember ("Bob", "Janson", "55544411", "bj@bj.com");
     map.addMember ("Ren", "Pampers", "223322335", "rp@wow.com");
     assertNotNull(map.findMembersByNames("Ren", "Pampers"));

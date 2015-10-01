@@ -4,13 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JPanel;
-
 import library.BorrowUC_CTL;
-import library.BorrowUC_UI;
 import library.dao.BookHelper;
 import library.dao.BookMapDAO;
 import library.dao.LoanHelper;
@@ -18,10 +12,7 @@ import library.dao.LoanMapDAO;
 import library.dao.MemberHelper;
 import library.dao.MemberMapDAO;
 import library.entities.Loan;
-import library.entities.Member;
 import library.entities.Book;
-import library.hardware.CardReader;
-import library.hardware.Scanner;
 import library.interfaces.EBorrowState;
 import library.interfaces.IBorrowUI;
 import library.interfaces.IBorrowUIListener;
@@ -40,8 +31,6 @@ import library.interfaces.hardware.IDisplay;
 import library.interfaces.hardware.IPrinter;
 import library.interfaces.hardware.IScanner;
 import library.panels.borrow.ABorrowPanel;
-import library.panels.borrow.ConfirmLoanPanel;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -105,6 +94,7 @@ public class BorrowUC_CTLIntegrationTest
     loanHelper = new LoanHelper();
     loanDAO = new LoanMapDAO(loanHelper); 
     scanner = Mockito.mock (IScanner.class);
+    printer = Mockito.mock(IPrinter.class);
     cardReader = Mockito.mock (ICardReader.class);
     ui = Mockito.mock (ABorrowPanel.class);
     display = Mockito.mock (IDisplay.class);
@@ -217,7 +207,6 @@ public class BorrowUC_CTLIntegrationTest
   
    
 
-
   @Test
   public void testBookScanned()
   {
@@ -269,6 +258,9 @@ public class BorrowUC_CTLIntegrationTest
   {
     //Test that then state does in fact transition into Completed.
     Mockito.when(display.getDisplay()).thenReturn (null);
+    borrowCtl.initialise ();
+    borrowCtl.cardSwiped (1);
+    borrowCtl.bookScanned (002);
     borrowCtl.loansConfirmed ();
     assertTrue(EBorrowState.COMPLETED.equals (borrowCtl.getState ()));
   }
@@ -281,22 +273,6 @@ public class BorrowUC_CTLIntegrationTest
     //Test that then state does in fact transition into Cancelled
     borrowCtl.cancelled ();
     assertTrue(EBorrowState.CANCELLED.equals(borrowCtl.getState()));
-  }
-  
-  
-  
-  @Test
-  public void testScansCompleted()
-  {
-    borrowCtl.initialise ();
-    borrowCtl.cardSwiped (1);
-    borrowCtl.bookScanned (002);
-    borrowCtl.bookScanned (003);
-    borrowCtl.bookScanned (004);
-    borrowCtl.bookScanned (005);
-    borrowCtl.bookScanned (006);
-    uIMock.setState (EBorrowState.CONFIRMING_LOANS);
-    assertTrue(EBorrowState.CONFIRMING_LOANS.equals(borrowCtl.getState()));
   }
   
     

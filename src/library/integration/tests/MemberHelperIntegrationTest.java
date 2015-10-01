@@ -39,10 +39,11 @@ public class MemberHelperIntegrationTest
   @Test
   public void testMakeMember ()
   {
+	// Testing that make member method of MemberHelper
     IMember test = memberHelper.makeMember (fName, lName, contactNumber, email, 
-        iD);
-   assertEquals (test.toString (), member.toString ());
-   assertTrue (memberHelper instanceof MemberHelper);
+    										iD);
+    assertEquals (test.toString (), member.toString ());
+    assertTrue (memberHelper instanceof MemberHelper);
   }
 
 }

@@ -79,25 +79,67 @@ public class MemberUnitTest
     assertTrue(member instanceof Member);
   }
   
+  
+  
+  
   @Test
   public void testSane ()
   {
     // Testing no exception should be thrown
     member = new Member(iD, fName, lName, email, contactNumber);
-    
-    // Testing thrown exceptions
+  }
+  
+  
+  
+  
+  @Test
+  public void testSaneInvalidMemberID ()
+  {
+    // Testing thrown exceptions for invalid Member ID
     thrown.expect(RuntimeException.class);
-    member = new Member(0, fName, lName, email, contactNumber);
-    thrown.expect(RuntimeException.class);
+    member = new Member(0, fName, lName, email, contactNumber); 
+  }
+  
+  
+  
+  @Test
+  public void testSaneInvalidFirstName ()
+  {
+	// Testing thrown exceptions for invalid First Name
+	thrown.expect(RuntimeException.class);
     member = new Member(iD, null, lName, email, contactNumber);
+  }
+ 
+  
+  
+  @Test
+  public void testSaneInvalidLastName ()
+  {
+	// Testing thrown exceptions for invalid Last Name
     thrown.expect(RuntimeException.class);
     member = new Member(iD, fName, null, email, contactNumber);
+  }
+  
+  
+    
+  @Test
+  public void testSaneInvalidEmail ()
+  {
+	// Testing thrown exceptions for invalid email
     thrown.expect(RuntimeException.class);
     member = new Member(iD, fName, lName, null, contactNumber);
+  }
+  
+  
+  @Test
+  public void testSaneInvalidContactNumber ()
+  {
+	// Testing thrown exceptions for invalid contact Number
     thrown.expect(RuntimeException.class);
     member = new Member(iD, fName, lName, email, null);
   }
   
+
 
   @Test
   public void testHasOverDueLoansFalse ()
