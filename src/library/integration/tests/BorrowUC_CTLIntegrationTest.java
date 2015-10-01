@@ -186,8 +186,6 @@ public class BorrowUC_CTLIntegrationTest
     // Setup a restricted member
     book = new Book("Michael", "Hi There", "003", 1);
     loan = new Loan(book, memberDAO.getMemberByID (1), currentDate, dueByDate);
-    System.out.println(memberDAO.getMemberByID (1));
-    System.out.println(memberDAO.getMemberByID (1).getLoans ());
     memberDAO.getMemberByID (1).addLoan (loan);
     memberDAO.getMemberByID (1).addLoan (loan);
     memberDAO.getMemberByID (1).addLoan (loan);
