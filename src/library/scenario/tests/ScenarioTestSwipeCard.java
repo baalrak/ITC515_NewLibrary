@@ -30,6 +30,8 @@ import library.interfaces.hardware.IDisplay;
 import library.interfaces.hardware.IPrinter;
 import library.interfaces.hardware.IScanner;
 import library.panels.borrow.ABorrowPanel;
+import library.panels.borrow.ScanningPanel;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,9 +100,8 @@ public class ScenarioTestSwipeCard
     display = Mockito.mock (IDisplay.class);
     borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
                                  loanDAO, memberDAO, ui);
-    uIMock = Mockito.mock (IBorrowUI.class);
     
-    IBook[] book = new IBook[15];
+    IBook[] book = new IBook[16];
     IMember member[] = new IMember[6];
     book[0]  = bookDAO.addBook("author1", "title1", "callNo1");
     book[1]  = bookDAO.addBook("author1", "title2", "callNo2");
@@ -117,6 +118,7 @@ public class ScenarioTestSwipeCard
     book[12] = bookDAO.addBook("author5", "title13", "callNo13");
     book[13] = bookDAO.addBook("author5", "title14", "callNo14");
     book[14] = bookDAO.addBook("author5", "title15", "callNo15");
+    book[15] = bookDAO.addBook("author6", "title16", "callNo16");
     member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
     member[1] = memberDAO.addMember("fName1", "lName1", "0002", "email1");
     member[2] = memberDAO.addMember("fName2", "lName2", "0003", "email2");
@@ -178,7 +180,12 @@ public class ScenarioTestSwipeCard
     borrowCtl = null;
   }
 
-
+  
+  
+/*
+ * This is the first operation test being performed
+ *         BBUC_Op2 Swipe Borrower Card
+ */
 
   @Test
   public void testSwipeCardNormalFlow() {
@@ -191,7 +198,7 @@ public class ScenarioTestSwipeCard
     Mockito.verify (cardReader).setEnabled (true);
     Mockito.verify (scanner).setEnabled(false);
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
-    
+      
     //Swipe Members Card
     borrowCtl.cardSwiped(1);
     
@@ -216,8 +223,8 @@ public class ScenarioTestSwipeCard
     borrowCtl.initialise();
     assertEquals(EBorrowState.INITIALIZED, borrowCtl.getState());
     assertNotNull(memberDAO);
-    //Mockito.verify (cardReader).addListener (borrowCtl);
-    //Mockito.verify (cardReader).setEnabled (true);
+    Mockito.verify (cardReader).addListener (borrowCtl);
+    Mockito.verify (cardReader).setEnabled (true);
     Mockito.verify (scanner).setEnabled(false);
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
     
@@ -235,25 +242,167 @@ public class ScenarioTestSwipeCard
     assertTrue(memberDAO.getMemberByID (4).getFineAmount () == 10.0f);
     assertTrue(memberDAO.getMemberByID (4).hasReachedFineLimit ());
     assertFalse(memberDAO.getMemberByID (4).hasReachedLoanLimit ());
+    member = memberDAO.getMemberByID (4);
+    Mockito.verify(ui).displayErrorMessage ("Member ID: " + member.getID () 
+                                            + " Name: " + member.getFirstName() 
+                                            + " " + member.getLastName () 
+                                            + "is restricted " + "from borrowing");
     assertEquals(EBorrowState.BORROWING_RESTRICTED, borrowCtl.getState()); 
   }
  
   
-  @Test
-  public void testBorrowBookNormalFlow() {
   
-    borrowCtl.bookScanned(11);
-    assertTrue(bookDAO.getBookByID(11) != null);
-    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(11).getState());
-    Mockito.verify(ui).displayScannedBookDetails(bookDAO.getBookByID(11).toString());
-    borrowCtl.scansCompleted();
+  /*
+   * This is the second operation test being performed
+   *              BBUC_Op3 Scan Book
+   */
+  
+  @Test
+  public void testScanBookNormalFlow() {
+    //Setup
+    borrowCtl.initialise();
+    borrowCtl.cardSwiped(1);
+    
+    //PreConditions
+    assertNotNull(borrowCtl);
+    assertNotNull(scanner);
+    Mockito.verify (scanner).addListener (borrowCtl);
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+    
+    //Scan Book
+    borrowCtl.bookScanned(13);
+    assertTrue(bookDAO.getBookByID(13) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(13).getState());
+
+    
+    //PostConditions
+    Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    Mockito.verify (cardReader).setEnabled(false);
+    Mockito.verify (scanner).setEnabled (true);
+    Mockito.verify(ui).displayScannedBookDetails(bookDAO.getBookByID(13).toString());
+    assertFalse(loanDAO.listLoans ().isEmpty ());
+    Mockito.verify (ui).displayPendingLoan ("");
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState()); 
+  }
+    
+  
+  
+  @Test
+  public void testScanBookBookNotFound() {
+    //Setup
+    borrowCtl.initialise();
+    borrowCtl.cardSwiped(1);
+    
+    //PreConditions
+    assertNotNull(borrowCtl);
+    assertNotNull(scanner);
+    Mockito.verify (scanner).addListener (borrowCtl);
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+    
+    //Scan Book
+    borrowCtl.bookScanned(25);
+    assertTrue(bookDAO.getBookByID(25) == null);
+     
+    //PostConditions
+    Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    Mockito.verify (cardReader).setEnabled(false);
+    Mockito.verify (scanner).setEnabled (true);
+    Mockito.verify (ui).displayErrorMessage ("Book: 25 not found");
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+  }
+    
+    
+  @Test
+  public void testScanBookBookNotAvailable() {
+    //Setup
+    borrowCtl.initialise();
+    borrowCtl.cardSwiped(1);
+    
+    //PreConditions
+    assertNotNull(borrowCtl);
+    assertNotNull(scanner);
+    Mockito.verify (scanner).addListener (borrowCtl);
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+    
+    //Scan Book
+    borrowCtl.bookScanned(3);
+    assertTrue(bookDAO.getBookByID(3) != null);
+    assertEquals(EBookState.ON_LOAN , bookDAO.getBookByID(3).getState());
+     
+    //PostConditions
+    Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    Mockito.verify (cardReader).setEnabled(false);
+    Mockito.verify (scanner).setEnabled (true);
+    Mockito.verify (ui).displayErrorMessage ("Book: 3 is currently " 
+                                             + bookDAO.getBookByID (3).getState());
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+  }
+    
+    
+  @Test
+  public void testScanBookBookAlreadyScanned() {
+    //Setup
+    borrowCtl.initialise();
+    borrowCtl.cardSwiped(1);
+    
+    //PreConditions
+    assertNotNull(borrowCtl);
+    assertNotNull(scanner);
+    Mockito.verify (scanner).addListener (borrowCtl);
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+    
+    //Scan Book
+    borrowCtl.bookScanned(13);
+    assertTrue(bookDAO.getBookByID(13) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(13).getState());
+    borrowCtl.bookScanned (13);
+     
+    //PostConditions
+    Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    Mockito.verify (cardReader).setEnabled(false);
+    Mockito.verify (scanner).setEnabled (true);
+    Mockito.verify (ui).displayErrorMessage ("Book: 13 is already scanned");
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+  } 
+    
+    
+  @Test
+  public void testScanBookScanCountAtLoanLimit() {
+    //Setup
+    borrowCtl.initialise();
+    borrowCtl.cardSwiped(1);
+    
+    //PreConditions
+    assertNotNull(borrowCtl);
+    assertNotNull(scanner);
+    Mockito.verify (scanner).addListener (borrowCtl);
+    assertEquals(EBorrowState.SCANNING_BOOKS, borrowCtl.getState());
+    
+    //Scan Book
+    borrowCtl.bookScanned(13);
+    assertTrue(bookDAO.getBookByID(13) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(13).getState());
+    borrowCtl.bookScanned (14);
+    assertTrue(bookDAO.getBookByID(14) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(14).getState());
+    borrowCtl.bookScanned (15);
+    assertTrue(bookDAO.getBookByID(15) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(15).getState());
+    borrowCtl.bookScanned (16);
+    assertTrue(bookDAO.getBookByID(16) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(16).getState());
+    borrowCtl.bookScanned (17);
+    assertTrue(bookDAO.getBookByID(17) != null);
+    assertEquals(EBookState.AVAILABLE , bookDAO.getBookByID(17).getState());
+    
+    
+    //PostConditions
+    Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    Mockito.verify (cardReader, Mockito.times(2)).setEnabled(false);
+    Mockito.verify (scanner, Mockito.times(2)).setEnabled (false);
+    Mockito.verify (ui).displayPendingLoan ("");
     assertEquals(EBorrowState.CONFIRMING_LOANS, borrowCtl.getState());
-    Mockito.verify(ui).setState(EBorrowState.CONFIRMING_LOANS);
-    Mockito.verify(ui).displayConfirmingLoan(Mockito.anyString());
-    borrowCtl.loansConfirmed();
-    assertEquals(EBorrowState.COMPLETED, borrowCtl.getState());
-    Mockito.verify(ui).setState(EBorrowState.COMPLETED);
-    assertEquals(1, loanDAO.findLoansByBorrower(memberDAO.getMemberByID(1)).size());
-    Mockito.verify(printer).print(Mockito.anyString());
-  }}
+  }  
+  
+    }
 
