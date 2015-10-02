@@ -115,7 +115,6 @@ public class BorrowUC_CTL implements ICardReaderListener,
       ui.displayErrorMessage("Member " + memberID + " cannot be found");
       return;
     }
-    System.out.println(borrower.getState() + "2");
     setState(EBorrowState.SCANNING_BOOKS);
     if (!borrower.getState().equals (EMemberState.BORROWING_ALLOWED))
     {
