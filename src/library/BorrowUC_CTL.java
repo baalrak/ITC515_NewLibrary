@@ -292,4 +292,10 @@ public class BorrowUC_CTL implements ICardReaderListener,
   {
     return state;
   }
+  
+  
+  public int getScanCount()
+  {
+    return scanCount;
+  }
 }
