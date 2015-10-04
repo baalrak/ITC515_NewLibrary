@@ -30,6 +30,8 @@ import library.interfaces.hardware.IPrinter;
 import library.interfaces.hardware.IScanner;
 import library.panels.borrow.ABorrowPanel;
 import library.panels.borrow.ConfirmLoanPanel;
+import library.panels.borrow.ScanningPanel;
+import library.panels.borrow.SwipeCardPanel;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +52,7 @@ public class ScenarioTestScanBook
   ILoanDAO loanDAO;
   ILoanHelper loanHelper;
   ICardReader cardReader;
-  ABorrowPanel ui;
+  ABorrowPanel ui, confirmLoanPanel, scanningPanel, swipeCardPanel;
   IBorrowUI uIMock;
   IBorrowUIListener listener;
   IScanner scanner;
@@ -99,6 +101,9 @@ public class ScenarioTestScanBook
     display = Mockito.mock (IDisplay.class);
     borrowCtl = new BorrowUC_CTL(cardReader, scanner, printer, display, bookDAO,
                                  loanDAO, memberDAO, ui);
+    confirmLoanPanel = new ConfirmLoanPanel(listener);
+    swipeCardPanel = new SwipeCardPanel(listener);
+    scanningPanel = new ScanningPanel(listener);
     
     IBook[] book = new IBook[16];
     IMember member[] = new IMember[6];
@@ -201,6 +206,7 @@ public class ScenarioTestScanBook
     
     //PostConditions
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    assertTrue(scanningPanel.isEnabled ());
     Mockito.verify (cardReader).setEnabled(false);
     Mockito.verify (scanner).setEnabled (true);
     Mockito.verify(ui).displayScannedBookDetails(bookDAO.getBookByID(13).toString());
@@ -229,6 +235,7 @@ public class ScenarioTestScanBook
      
     //PostConditions
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    assertTrue(scanningPanel.isEnabled ());
     Mockito.verify (cardReader).setEnabled(false);
     Mockito.verify (scanner).setEnabled (true);
     Mockito.verify (ui).displayErrorMessage ("Book: 25 not found");
@@ -255,6 +262,7 @@ public class ScenarioTestScanBook
      
     //PostConditions
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    assertTrue(scanningPanel.isEnabled ());
     Mockito.verify (cardReader).setEnabled(false);
     Mockito.verify (scanner).setEnabled (true);
     Mockito.verify (ui).displayErrorMessage ("Book: 3 is currently " 
@@ -283,6 +291,7 @@ public class ScenarioTestScanBook
      
     //PostConditions
     Mockito.verify(display).setDisplay(ui, "Borrow UI");
+    assertTrue(scanningPanel.isEnabled ());
     Mockito.verify (cardReader).setEnabled(false);
     Mockito.verify (scanner).setEnabled (true);
     Mockito.verify (ui).displayErrorMessage ("Book: 13 is already scanned");
